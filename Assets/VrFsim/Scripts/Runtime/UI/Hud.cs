@@ -37,9 +37,9 @@ namespace VrFsim.UI
         void BuildStation()
         {
             var parent = ViewManager.Instance ? ViewManager.Instance.Origin.transform : transform;
-            station = UiKit.WorldCanvas("DriverStationDisplay", parent, new Vector2(900, 560), 0.62f, false);
-            station.transform.localPosition = new Vector3(0f, 1.0f, 0.55f);
-            station.transform.localRotation = Quaternion.Euler(38f, 0f, 0f);
+            station = UiKit.WorldCanvas("DriverStationDisplay", parent, new Vector2(900, 560), 0.5f, false);
+            station.transform.localPosition = new Vector3(0f, 0.92f, 0.5f);
+            station.transform.localRotation = Quaternion.Euler(42f, 0f, 0f);
 
             var bg = UiKit.Box(station.transform, "Bg", UiKit.Bg);
             UiKit.Fill(bg.rectTransform);
@@ -136,8 +136,10 @@ namespace VrFsim.UI
             bool free = m.Phase == MatchPhase.FreeDrive;
             clock.text = free ? "FREE" : MatchController.FormatClock(m.DisplaySeconds);
             phase.text = phaseName;
-            redScore.text = m.Red.Total.ToString();
-            blueScore.text = m.Blue.Total.ToString();
+            // Like the real field display, the score reads 0 until the match starts.
+            bool pre = m.Phase == MatchPhase.PreMatch;
+            redScore.text = pre ? "0" : m.Red.Total.ToString();
+            blueScore.text = pre ? "0" : m.Blue.Total.ToString();
             boardClock.text = clock.text;
             boardPhase.text = phaseName;
             boardRed.text = redScore.text;

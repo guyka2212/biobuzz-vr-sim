@@ -64,6 +64,10 @@ namespace VrFsim.Match
             float x = alliance == Alliance.Red ? -FieldSpec.WallInner - 8f : FieldSpec.WallInner + 8f;
             station = new GameObject($"HumanStation_{alliance}").transform;
             station.position = Units.Field(x, lz.Center.y, 30f);
+            // A small table under the rack, so the NECTAR does not float.
+            var lib = MaterialLibrary.Get();
+            FieldBuilder.Visual(station, "Table", Units.Field(2f, 0f, -2.3f), Units.Size(10f, 18f, 1f), Quaternion.identity, lib.wallFrame);
+            FieldBuilder.Visual(station, "TableLeg", Units.Field(2f, 0f, -16.4f), Units.Size(2f, 2f, 27.4f), Quaternion.identity, lib.robotDark);
             for (int i = 0; i < 8; i++)
             {
                 var t = new GameObject("Rack" + i).transform;

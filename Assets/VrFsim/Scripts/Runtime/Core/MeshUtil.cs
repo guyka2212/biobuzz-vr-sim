@@ -15,22 +15,27 @@ namespace VrFsim
             var v = new List<Vector3>();
             var t = new List<int>();
             int n = poly.Count;
+            // Each face gets its own vertices on each side, so normals stay crisp and never cancel out.
+            void Quad(Vector3 a, Vector3 b, Vector3 c, Vector3 d)
+            {
+                int s0 = v.Count;
+                v.Add(a); v.Add(b); v.Add(c); v.Add(d);
+                t.AddRange(new[] { s0, s0 + 1, s0 + 2, s0, s0 + 2, s0 + 3 });
+                int s1 = v.Count;
+                v.Add(a); v.Add(b); v.Add(c); v.Add(d);
+                t.AddRange(new[] { s1, s1 + 2, s1 + 1, s1, s1 + 3, s1 + 2 });
+            }
             for (int i = 0; i < n; i++)
             {
                 Vector2 a = poly[i], b = poly[(i + 1) % n];
-                int s = v.Count;
-                v.Add(new Vector3(a.x, a.y, z0)); v.Add(new Vector3(b.x, b.y, z0));
-                v.Add(new Vector3(b.x, b.y, z1)); v.Add(new Vector3(a.x, a.y, z1));
-                t.AddRange(new[] { s, s + 1, s + 2, s, s + 2, s + 3 });   // one side
-                t.AddRange(new[] { s, s + 2, s + 1, s, s + 3, s + 2 });   // other side
+                Quad(new Vector3(a.x, a.y, z0), new Vector3(b.x, b.y, z0), new Vector3(b.x, b.y, z1), new Vector3(a.x, a.y, z1));
             }
-            // Cap at z0 (both sides).
-            int c = v.Count;
-            foreach (var p in poly) v.Add(new Vector3(p.x, p.y, z0));
-            for (int i = 1; i < n - 1; i++)
+            for (int side = 0; side < 2; side++)
             {
-                t.AddRange(new[] { c, c + i, c + i + 1 });
-                t.AddRange(new[] { c, c + i + 1, c + i });
+                int c = v.Count;
+                foreach (var p in poly) v.Add(new Vector3(p.x, p.y, z0));
+                for (int i = 1; i < n - 1; i++)
+                    t.AddRange(side == 0 ? new[] { c, c + i, c + i + 1 } : new[] { c, c + i + 1, c + i });
             }
             var m = new Mesh { name = name };
             m.SetVertices(v);
