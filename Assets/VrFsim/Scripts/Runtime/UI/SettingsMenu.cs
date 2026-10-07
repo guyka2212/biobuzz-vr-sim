@@ -436,7 +436,24 @@ namespace VrFsim.UI
             k == LauncherKind.Turret ? "POLLEN only - aims itself"
             : k == LauncherKind.DoubleTurret ? "One POLLEN turret, one NECTAR turret"
             : "POLLEN and NECTAR - turn to aim";
-        static string MountName(IntakeMount m) => m == IntakeMount.Front ? "FRONT" : m == IntakeMount.Back ? "BACK" : m == IntakeMount.Side ? "SIDES" : "FRONT+BACK";
+        static string MountName(IntakeMount m)
+        {
+            switch (m)
+            {
+                case IntakeMount.Front: return "Front";
+                case IntakeMount.Back: return "Back";
+                case IntakeMount.Left: return "Left side";
+                case IntakeMount.Right: return "Right side";
+                case IntakeMount.Side: return "Both sides (double)";
+                default: return "Front + Back (double)";
+            }
+        }
+
+        // Menu order: single edges first, then the two double intakes.
+        static readonly IntakeMount[] MountOrder =
+        {
+            IntakeMount.Front, IntakeMount.Back, IntakeMount.Left, IntakeMount.Right, IntakeMount.Side, IntakeMount.FrontAndBack,
+        };
         static string AutoName(AutoRoutine a) =>
             a == AutoRoutine.Off ? "Off - you drive"
             : a == AutoRoutine.Leave ? "Routine: leave the wall"
@@ -521,9 +538,12 @@ namespace VrFsim.UI
             Live(() => IntakeBlurb(R.intakeKind));
             Stepper("Intake mount", () => MountName(R.intakeMount), d =>
             {
-                var all = (IntakeMount[])Enum.GetValues(typeof(IntakeMount));
-                R.intakeMount = all[(Array.IndexOf(all, R.intakeMount) + d + all.Length) % all.Length];
+                int i = Array.IndexOf(MountOrder, R.intakeMount);
+                R.intakeMount = MountOrder[(i + d + MountOrder.Length) % MountOrder.Length];
             }, true);
+            Live(() => R.IsDoubleIntake
+                ? "Double intake: rollers on two opposite edges, so you can collect driving either way (+1.5 lb)."
+                : "Single intake on one edge.");
             Choice("Intake reach", () => R.intakeReach, v => R.intakeReach = v, true);
 
             Header("Launcher");

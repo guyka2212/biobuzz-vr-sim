@@ -70,6 +70,30 @@ namespace VrFsim.Tests
             Assert.AreEqual(-8f, DriveKinematics.AxisAccel(1.5f, 0f, 2f, 20f, 8f, 0.01f), 1e-4f);
         }
 
+        [TestCase(IntakeMount.Front, 1)]
+        [TestCase(IntakeMount.Left, 1)]
+        [TestCase(IntakeMount.Right, 1)]
+        [TestCase(IntakeMount.Side, 2)]
+        [TestCase(IntakeMount.FrontAndBack, 2)]
+        public void IntakeMounts_BuildTheRightMouths(IntakeMount mount, int mouths)
+        {
+            var c = new RobotConfig { intakeMount = mount };
+            c.Validate();
+            var rig = RobotBuilder.Build(c, Alliance.Red, MaterialLibrary.Get(), null, "Test");
+            try
+            {
+                Assert.AreEqual(mouths, rig.mouths.Count);
+                if (mount == IntakeMount.Side)
+                {
+                    Assert.AreEqual(1f, rig.mouths[0].outward.x, 1e-4f);
+                    Assert.AreEqual(-1f, rig.mouths[1].outward.x, 1e-4f, "double side intake covers both sides");
+                }
+                if (mount == IntakeMount.Left) Assert.AreEqual(-1f, rig.mouths[0].outward.x, 1e-4f);
+                Assert.AreEqual(mouths == 2, c.IsDoubleIntake);
+            }
+            finally { Object.DestroyImmediate(rig.root); }
+        }
+
         [Test]
         public void ApexShot_PassesThroughTarget()
         {

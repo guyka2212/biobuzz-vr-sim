@@ -16,11 +16,18 @@ args=(-batchmode -quit -projectPath "$ROOT" -logFile "$LOG")
 "$UNITY_EXE" "${args[@]}"
 code=$?
 
+if [ $code -ne 0 ] && grep -q "Multiple Unity instances cannot open the same project" "$LOG" 2>/dev/null; then
+  echo "UNITY: the project is open in the Unity Editor - close it to run batch jobs"; exit 2
+fi
+
 errors=$(grep -E "error CS[0-9]+|Scripts have compiler errors|executeMethod.*(failed|could not)" "$LOG" | sort -u)
 if [ -n "$errors" ]; then
   echo "$errors"
   echo "UNITY BATCH: FAILED (exit $code) - see $LOG"
   exit 1
 fi
-echo "UNITY BATCH: OK (exit $code)"
-exit $code
+if [ $code -ne 0 ]; then
+  echo "UNITY BATCH: FAILED (exit $code) - see $LOG"; exit $code
+fi
+echo "UNITY BATCH: OK"
+exit 0

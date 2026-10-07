@@ -13,7 +13,12 @@ namespace VrFsim.Settings
     public enum IntakeKind { Sweeper, SideRollers, Ramp }
 
     /// <summary>Which chassis edges carry intake rollers. Side = both sides, dsim's 'SIDES'.</summary>
-    public enum IntakeMount { Front, Back, Side, FrontAndBack }
+    /// <summary>
+    /// Which chassis edges carry intake rollers. Side = both sides (a double side intake, dsim's
+    /// "SIDES"); FrontAndBack is the double front/back intake; Left and Right are single sides.
+    /// (Values are stored as numbers, so new ones go at the end.)
+    /// </summary>
+    public enum IntakeMount { Front, Back, Side, FrontAndBack, Left, Right }
 
     public enum LauncherKind { Turret, DoubleTurret, Dumper }
 
@@ -107,7 +112,7 @@ namespace VrFsim.Settings
         /// <summary>Extra mass the mechanisms add on top of the bare drivetrain floor.</summary>
         public float MechanismMassLb()
         {
-            float m = 1.5f * (intakeMount == IntakeMount.FrontAndBack || intakeMount == IntakeMount.Side ? 2 : 1);
+            float m = 1.5f * (IsDoubleIntake ? 2 : 1);
             m += launcher == LauncherKind.Turret ? 5f : launcher == LauncherKind.DoubleTurret ? 8.5f : 3.5f;
             if (hasBoxTube) m += 1.5f;
             return m;
@@ -119,6 +124,9 @@ namespace VrFsim.Settings
             return new Vector2(Mathf.Min(r.x + MechanismMassLb() * 0.5f, r.y), r.y);
         }
 
+        /// <summary>Rollers on two opposite edges.</summary>
+        public bool IsDoubleIntake => intakeMount == IntakeMount.Side || intakeMount == IntakeMount.FrontAndBack;
+
         public bool CarriesNectar => launcher != LauncherKind.Turret || hasBoxTube;
 
         public void Validate()
@@ -128,6 +136,7 @@ namespace VrFsim.Settings
             teamName ??= "";
             if (teamName.Length > 32) teamName = teamName.Substring(0, 32);
             teamNumber = Mathf.Clamp(teamNumber, 0, 99999);
+            if (!Enum.IsDefined(typeof(IntakeMount), intakeMount)) intakeMount = IntakeMount.Front;
 
             float minW = drivetrain == DrivetrainType.Swerve ? SwerveMinWidth : MinSize;
             lengthIn = Snap(Mathf.Clamp(lengthIn, MinSize, MaxSize));

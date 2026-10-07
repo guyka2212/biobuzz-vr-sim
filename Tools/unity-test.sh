@@ -10,6 +10,9 @@ rm -f "$RESULTS"
 "$UNITY_EXE" -batchmode -nographics -projectPath "$ROOT" -runTests -testPlatform "$PLATFORM" \
   -testResults "$RESULTS" -logFile "$ROOT/Logs/test.log"
 code=$?
+if [ $code -ne 0 ] && grep -q "Multiple Unity instances cannot open the same project" "$ROOT/Logs/test.log" 2>/dev/null; then
+  echo "UNITY: the project is open in the Unity Editor - close it to run batch jobs"; exit 2
+fi
 if [ ! -f "$RESULTS" ]; then
   grep -E "error CS[0-9]+" "$ROOT/Logs/test.log" | sort -u
   echo "UNITY TESTS: no results (exit $code) - see Logs/test.log"; exit 1

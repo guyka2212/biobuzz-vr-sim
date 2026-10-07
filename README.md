@@ -117,7 +117,8 @@ All settings live in the in-VR menu and are saved to
   AUTO routine, practice robots (partner and two opponents), event log, penalties.
 - **Robot:** five presets, name, team number, drivetrain, length, width, deployed and stowed
   height, mass, wheel RPM, butterfly traction RPM, colours, and a saved-robot library.
-- **Mechanisms:** intake type (sweeper, side rollers, ramp), reach and mount. Launcher (turret,
+- **Mechanisms:** intake type (sweeper, side rollers, ramp), reach and mount (front, back,
+  left or right side, or a double intake on both sides or front + back). Launcher (turret,
   double turret, dumper) and its mount, NECTAR turret mount, dumper hood angle. Box Tube and its
   mount. Storage capacity (1–4, G407) and pass target.
 - **Driving:** field-centric, aim assist, auto intake, auto fire, tank control, slow-mode speed,

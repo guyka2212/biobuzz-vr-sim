@@ -22,7 +22,7 @@ Legend: **Carry** = implemented in the VR sim · **Adapt** = same intent, VR-spe
 | butterfly traction-mode RPM (`tankRpm`) | 200–560 | Carry |
 | intake reach style (`intake`) | sloped, vector, triangle | Carry |
 | intake archetype | sweeper, side-rollers, ramp | Carry |
-| intake mount | front, back, side, front+back | Carry |
+| intake mount | front, back, side, front+back | Carry; plus single left / right side ("side" = double side intake) |
 | launcher type | single turret, double turret, dumper (mandatory) | Carry |
 | launcher mount | 3×3 grid: front/back/left/right/4 corners/center | Carry |
 | second turret mount (double turret) | non-adjacent cell | Carry |
