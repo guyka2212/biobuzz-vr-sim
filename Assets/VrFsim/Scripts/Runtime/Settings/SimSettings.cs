@@ -8,7 +8,11 @@ namespace VrFsim.Settings
     public enum DriveControlMode { Arcade, Tank }
     public enum StickSide { Left, Right }
     public enum PracticeSeat { None, Dummy }
-    public enum AutoRoutine { DoNothing, Leave, LaunchPreloadsAndLeave, LaunchPreloadsAndPark }
+    /// <summary>
+    /// Who controls the robot in AUTO. DriveYourself (the default, like dsim) lets the player
+    /// drive the 30 s period to practise it; the others are pre-programmed routines, like a real OpMode.
+    /// </summary>
+    public enum AutoRoutine { DoNothing, Leave, LaunchPreloadsAndLeave, LaunchPreloadsAndPark, DriveYourself }
     public enum StartAnchor { WallNearAudience, WallCenter, WallBehindLoadingZone, AudienceWall, Custom }
     public enum StationSlot { NearAudience, FarFromAudience }
     public enum CameraView { DriverStation, Overhead, Chase, RobotPov, Free }
@@ -67,7 +71,7 @@ namespace VrFsim.Settings
         public StartAnchor start = StartAnchor.WallCenter;
         public CustomPose customStart = new CustomPose();
         public List<CustomPose> savedStarts = new List<CustomPose>();
-        public AutoRoutine auto = AutoRoutine.LaunchPreloadsAndLeave;
+        public AutoRoutine auto = AutoRoutine.DriveYourself;
         public PracticeSeat partner = PracticeSeat.None;
         public PracticeSeat opponent1 = PracticeSeat.None;
         public PracticeSeat opponent2 = PracticeSeat.None;

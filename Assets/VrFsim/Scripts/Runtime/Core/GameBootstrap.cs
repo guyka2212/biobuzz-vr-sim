@@ -35,6 +35,7 @@ namespace VrFsim
             Make<GraphicsApplier>("Graphics");
             Make<Hud>("Displays");
             Make<SettingsMenu>("Menu");
+            Make<ResultsScreen>("Results");
             if (Benchmark.Requested) Make<Benchmark>("Benchmark");
         }
 

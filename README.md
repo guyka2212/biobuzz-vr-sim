@@ -90,14 +90,21 @@ Everything works from the gamepad alone. A keyboard is only a fallback.
 ## Playing
 
 1. You start at the red driver station. A match is staged and waiting. Press **A** to start it.
-2. **AUTO (0:30):** your robot runs the AUTO routine picked in Menu → Match, as an OpMode
-   would (G401: no driver input).
-3. **Transition (0:08):** controls are locked (G403). Watch for "PICK UP CONTROLLERS".
+2. **AUTO (0:30):** you drive the robot yourself to practise the autonomous period, as in dsim.
+   To have the robot run a pre-programmed routine instead, as a real OpMode would (G401: no
+   driver input), pick one in Menu → Match → AUTO routine.
+3. **Transition (0:08):** nothing can be done. The robot is disabled (G403) and the human player
+   cannot enter NECTAR. Watch for "PICK UP CONTROLLERS".
 4. **TELEOP (2:00):** drive. Launch POLLEN and NECTAR into your HIVE's up-CELL to TIP it
    (+20). Each TIP lets your human player enter one NECTAR. Once 1:00 remains, the FLOWERS open
    and the human player may enter every remaining NECTAR. End in your LOADING ZONE to PARK.
-5. After 0:00 the field comes to rest, then final scores and ranking points appear on the
-   driver display.
+5. After 0:00 the field comes to rest and a **results screen** appears. It shows each
+   alliance's points line by line (LEAVE, PARK, TIPS, CELL, FLOWER, GARDEN), fouls, total and
+   ranking points. Press A for the next match.
+
+The score starts at 0. Elements already in the CELLS and GARDENS at the start count only when
+they are assessed at the end of the match (§10.5 C and E), so the live score shows only what
+has been earned so far.
 
 **Free drive** (Menu → Match → Mode) removes the clock, so you can practise without a timer.
 

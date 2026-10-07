@@ -340,7 +340,8 @@ namespace VrFsim.Match
                         break;
                     case MatchPhase.Auto:
                         r.Enabled = player;
-                        if (player) { r.Source = new AutoSource(s.match.auto); r.ForceAimAssist = true; }
+                        if (player && s.match.auto == AutoRoutine.DriveYourself) { r.Source = new DriverSource(); r.ForceAimAssist = false; }
+                        else if (player) { r.Source = new AutoSource(s.match.auto); r.ForceAimAssist = true; }
                         break;
                     case MatchPhase.Teleop:
                     case MatchPhase.FreeDrive:
@@ -432,7 +433,7 @@ namespace VrFsim.Match
 
         void FinalScore()
         {
-            UpdateLiveScore();
+            UpdateLiveScore(true);
             FinalScored = true;
             BeginPhase(MatchPhase.Ended);
             string winner = Red.Total == Blue.Total ? "TIE" : Red.Total > Blue.Total ? "RED wins" : "BLUE wins";
@@ -441,13 +442,20 @@ namespace VrFsim.Match
 
         // ── Scoring ─────────────────────────────────────────────────────────────────────────
 
-        void UpdateLiveScore()
+        /// <summary>
+        /// Live score. CELL contents and GARDEN elements are only assessed once the field is at rest
+        /// after the match (§10.5 C and E), so during a match they count 0 — otherwise the elements
+        /// staged in the up-CELLS and GARDENS would hand each alliance 10 points before anyone moves.
+        /// Free drive has no end, so it shows them live.
+        /// </summary>
+        void UpdateLiveScore(bool final = false)
         {
             Red.ResetLive(); Blue.ResetLive();
             var field = SimWorld.Field;
+            bool atRestItems = final || Phase == MatchPhase.FreeDrive;
             foreach (var hive in new[] { field.redHive, field.blueHive })
             {
-                if (hive.IsSwinging) continue; // contents are leaving; the TIP itself is what scores
+                if (!atRestItems || hive.IsSwinging) continue; // a swinging cell's load is leaving; the TIP scores
                 hive.CountCell(hive.UpSign, out int p, out int n);
                 ScoreOf(hive.alliance).cellElements += p + n;
             }
@@ -457,15 +465,19 @@ namespace VrFsim.Match
                 if (res.owner.HasValue) ScoreOf(res.owner.Value).ownedFlowerElements += res.scoringElements;
                 if (res.bottomBonus.HasValue) ScoreOf(res.bottomBonus.Value).bottomBonuses++;
             }
-            var redGarden = FieldSpec.GardenRed;
-            var blueGarden = FieldSpec.GardenRed.For(Alliance.Blue);
+            if (!atRestItems) return;
+            Red.gardenElements = GardenElementsNow(Alliance.Red);
+            Blue.gardenElements = GardenElementsNow(Alliance.Blue);
+        }
+
+        /// <summary>Elements at least partly in an alliance's GARDEN right now (scored for the GARDEN's colour).</summary>
+        public int GardenElementsNow(Alliance a)
+        {
+            var garden = FieldSpec.GardenRed.For(a);
+            int n = 0;
             foreach (var e in GameElement.All)
-            {
-                if (!e.IsFree) continue;
-                Vector2 p = e.FieldPlaneIn; float r = e.RadiusIn;
-                if (redGarden.OverlapsCircle(p, r)) Red.gardenElements++;
-                if (blueGarden.OverlapsCircle(p, r)) Blue.gardenElements++;
-            }
+                if (e.IsFree && garden.OverlapsCircle(e.FieldPlaneIn, e.RadiusIn)) n++;
+            return n;
         }
 
         void OnTipped(Hive hive)
@@ -499,7 +511,8 @@ namespace VrFsim.Match
 
         public bool TryHumanNectar(Alliance a)
         {
-            if (!IsLive) return false;
+            // Nothing may be done during the AUTO-to-TELEOP transition.
+            if (!IsLive || Phase == MatchPhase.Transition) return false;
             var h = humans[(int)a];
             bool allowed = h.CanEnter(SecondsRemaining <= FlowerUnlockRemaining && Phase == MatchPhase.Teleop || Phase == MatchPhase.FreeDrive);
             if (!allowed) { Log($"{a} human player: no NECTAR entitlement yet (one per own TIP, all at 1:00)."); return false; }

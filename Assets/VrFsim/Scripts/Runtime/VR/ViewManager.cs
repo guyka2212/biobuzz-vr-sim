@@ -31,6 +31,7 @@ namespace VrFsim.VR
         public Transform RightController { get; private set; }
 
         Transform offset, recenter;
+        readonly List<TrackedPoseDriver> trackers = new List<TrackedPoseDriver>(3);
         float eyeAdjust;
         Vector3 followVel;
         float desktopYaw, desktopPitch;
@@ -88,6 +89,7 @@ namespace VrFsim.VR
             Cam.nearClipPlane = 0.03f;
             Cam.farClipPlane = 60f;
             var tpd = camGo.AddComponent<TrackedPoseDriver>();
+            trackers.Add(tpd);
             tpd.positionInput = new InputActionProperty(new InputAction("HeadPos", binding: "<XRHMD>/centerEyePosition"));
             tpd.rotationInput = new InputActionProperty(new InputAction("HeadRot", binding: "<XRHMD>/centerEyeRotation"));
             tpd.trackingStateInput = new InputActionProperty(new InputAction("HeadState", binding: "<XRHMD>/trackingState"));
@@ -96,6 +98,8 @@ namespace VrFsim.VR
 
             LeftController = Controller(recenter, "Left Controller", "{LeftHand}");
             RightController = Controller(recenter, "Right Controller", "{RightHand}");
+            trackers.Add(LeftController.GetComponent<TrackedPoseDriver>());
+            trackers.Add(RightController.GetComponent<TrackedPoseDriver>());
 
             Origin = root.AddComponent<XROrigin>();
             Origin.Origin = root;
@@ -119,8 +123,14 @@ namespace VrFsim.VR
             return go.transform;
         }
 
+        /// <summary>
+        /// A headset is in use only if an XR display is running AND the runtime reports an active
+        /// device. A PC VR runtime can be installed and selected with no headset connected; then
+        /// the game must behave as a desktop game, not wait for tracking that never comes.
+        /// </summary>
         static bool HeadsetRunning()
         {
+            if (!XRSettings.isDeviceActive) return false;
             SubsystemManager.GetSubsystems(displays);
             foreach (var d in displays) if (d.running) return true;
             return false;
@@ -156,6 +166,9 @@ namespace VrFsim.VR
         void LateUpdate()
         {
             XrActive = HeadsetRunning();
+            // Without a headset the tracked-pose drivers would reset the camera to the tracking
+            // origin (the floor) every frame, so they only run in VR.
+            foreach (var t in trackers) if (t && t.enabled != XrActive) t.enabled = XrActive;
             if (InputHub.Instance) InputHub.Instance.FreeCameraActive = View == CameraView.Free;
             UpdateView(false);
             if (!XrActive) DesktopLook();

@@ -48,6 +48,37 @@ namespace VrFsim.Tests
             Assert.Pass("Captured to " + dir);
         }
 
+        [UnityTest, Explicit("Renders screenshots; run with Tools/unity-capture.sh")]
+        public IEnumerator CaptureResults()
+        {
+            var s = new SimSettings();
+            s.match.auto = AutoRoutine.LaunchPreloadsAndPark;
+            SettingsStore.UseTransient(s);
+            SimWorld.Field = null;
+            SceneManager.LoadScene("Main");
+            for (int i = 0; i < 30; i++) yield return null;
+            var m = MatchController.Instance;
+            m.StartMatch();
+            Time.timeScale = 8f;
+            while (m.Phase != MatchPhase.Ended) yield return null;
+            Time.timeScale = 1f;
+            for (int i = 0; i < 10; i++) yield return null;
+            string dir = Path.Combine(Application.dataPath, "../Logs/Captures");
+            Directory.CreateDirectory(dir);
+            var cam = new GameObject("CaptureCam").AddComponent<Camera>();
+            cam.fieldOfView = 70f;
+            cam.backgroundColor = Color.black;
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            var head = VR.ViewManager.Instance.Head;
+            Debug.Log($"[capture] head {head.position} fwd {head.forward}");
+            Shot(cam, dir, "06_results", head.position, head.rotation);
+            var panel = GameObject.Find("MatchResults");
+            Debug.Log($"[capture] panel {panel.transform.position}");
+            Shot(cam, dir, "06b_results_wide", head.position - head.forward * 1.2f + Vector3.up * 0.4f, Quaternion.LookRotation(panel.transform.position - (head.position - head.forward * 1.2f + Vector3.up * 0.4f)));
+            panel.SetActive(false);
+            Shot(cam, dir, "06c_results_hidden", head.position, head.rotation);
+        }
+
         static void Shot(Camera cam, string dir, string name, Vector3 pos, Quaternion rot)
         {
             cam.transform.SetPositionAndRotation(pos, rot);

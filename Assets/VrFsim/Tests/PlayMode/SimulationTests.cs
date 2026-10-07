@@ -84,8 +84,10 @@ namespace VrFsim.Tests
                 int near = GameElement.All.Count(e => e.IsFree && (e.FieldPlaneIn - f.centerIn).magnitude < 2.5f);
                 Assert.AreEqual(4, near, $"4 POLLEN in FLOWER F{f.index + 1}");
             }
-            Assert.AreEqual(4, m.Red.gardenElements, "red GARDEN");
-            Assert.AreEqual(4, m.Blue.gardenElements, "blue GARDEN");
+            Assert.AreEqual(4, m.GardenElementsNow(Alliance.Red), "red GARDEN");
+            Assert.AreEqual(4, m.GardenElementsNow(Alliance.Blue), "blue GARDEN");
+            Assert.AreEqual(0, m.Red.Total, "nothing is scored before the match");
+            Assert.AreEqual(0, m.Blue.Total, "nothing is scored before the match");
             Assert.AreEqual(0, field.redHive.TipCount);
         }
 
@@ -273,11 +275,16 @@ namespace VrFsim.Tests
             var m = MatchController.Instance;
             m.StartMatch();
             Assert.AreEqual(MatchPhase.Auto, m.Phase);
+            yield return new WaitForFixedUpdate();
+            yield return new WaitForFixedUpdate();
+            Assert.AreEqual(0, m.Red.Total, "staged CELL/GARDEN elements score only at the end");
+            Assert.AreEqual(0, m.Blue.Total, "staged CELL/GARDEN elements score only at the end");
             Time.timeScale = 6f;
             while (m.Phase == MatchPhase.Auto) yield return null;
             Assert.AreEqual(MatchPhase.Transition, m.Phase);
             Assert.AreEqual(1, m.Red.leaveCount, "AUTO routine leaves the wall");
             Assert.IsFalse(m.Player.Enabled, "no powered movement in transition (G403)");
+            Assert.IsFalse(m.TryHumanNectar(Alliance.Red), "nothing can be done in the transition");
             Debug.Log($"After AUTO: red {m.Red.AutoPoints} pts, tips {m.Red.autoTips}");
             while (m.Phase == MatchPhase.Transition) yield return null;
             Assert.AreEqual(MatchPhase.Teleop, m.Phase);
@@ -286,6 +293,23 @@ namespace VrFsim.Tests
             Assert.IsTrue(m.FinalScored);
             Debug.Log(string.Join("\n", m.EventLog));
             Assert.GreaterOrEqual(m.Red.Total, Points.Leave);
+            yield return null;
+            var results = GameObject.Find("MatchResults");
+            Assert.IsNotNull(results, "results screen appears at the end");
+            Assert.IsTrue(results.activeInHierarchy);
+        }
+
+        [UnityTest]
+        public IEnumerator Auto_DriverControlsTheRobotByDefault()
+        {
+            yield return Boot(new SimSettings());
+            var m = MatchController.Instance;
+            Assert.AreEqual(AutoRoutine.DriveYourself, SettingsStore.Current.match.auto);
+            m.StartMatch();
+            yield return null;
+            Assert.AreEqual(MatchPhase.Auto, m.Phase);
+            Assert.IsTrue(m.Player.Enabled, "the player drives in AUTO");
+            Assert.IsInstanceOf<DriverSource>(m.Player.Source);
         }
     }
 }

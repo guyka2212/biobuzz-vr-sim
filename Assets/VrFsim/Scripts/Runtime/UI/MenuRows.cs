@@ -130,3 +130,82 @@ namespace VrFsim.UI
         }
     }
 }
+
+namespace VrFsim.UI
+{
+    using System.Collections.Generic;
+    using VrFsim.Settings;
+
+    /// <summary>
+    /// A 3x3 chassis map for picking where a mechanism is mounted (front row at the top), like
+    /// dsim's builder. Gamepad: Left/Right steps through the legal cells. Pointer: click a cell.
+    /// Illegal cells are dimmed; cells taken by another mechanism show its name.
+    /// </summary>
+    public class MountGridRow : Selectable, IMoveHandler, ISubmitHandler, IMenuRow
+    {
+        public Func<MountPos> get;
+        public Action<MountPos> set;
+        public Func<MountPos, bool> allowed;
+        public Func<MountPos, string> marker;
+        public readonly List<(MountPos pos, Image bg, TextMeshProUGUI text, Button button)> cells =
+            new List<(MountPos, Image, TextMeshProUGUI, Button)>();
+
+        public Selectable Focus => this;
+
+        static readonly string[] Names = { "F-LEFT", "FRONT", "F-RIGHT", "LEFT", "CENTER", "RIGHT", "B-LEFT", "BACK", "B-RIGHT" };
+
+        public static string Name(MountPos p) => Names[(int)p];
+
+        public override void OnMove(AxisEventData e)
+        {
+            if (e.moveDir == MoveDirection.Left || e.moveDir == MoveDirection.Right)
+            {
+                Step(e.moveDir == MoveDirection.Right ? 1 : -1);
+                e.Use();
+                return;
+            }
+            base.OnMove(e);
+        }
+
+        public void OnSubmit(BaseEventData e) => Step(1);
+
+        void Step(int d)
+        {
+            int cur = (int)get();
+            for (int i = 1; i <= 9; i++)
+            {
+                var p = (MountPos)(((cur + d * i) % 9 + 9) % 9);
+                if (allowed(p)) { set(p); break; }
+            }
+            Refresh();
+        }
+
+        public void Pick(MountPos p)
+        {
+            if (!allowed(p)) return;
+            set(p);
+            Refresh();
+        }
+
+        public void Refresh()
+        {
+            var cur = get();
+            foreach (var c in cells)
+            {
+                bool ok = allowed(c.pos), sel = c.pos == cur;
+                string mark = marker?.Invoke(c.pos);
+                c.bg.color = sel ? new Color(0.36f, 0.62f, 0.5f) : ok ? UiKit.Row : new Color(0.1f, 0.1f, 0.12f);
+                c.text.color = sel ? Color.white : ok ? UiKit.TextMain : UiKit.TextDim;
+                c.text.text = string.IsNullOrEmpty(mark) ? Name(c.pos) : $"{Name(c.pos)}\n<size=70%>{mark}</size>";
+            }
+        }
+    }
+
+    /// <summary>A text line that re-reads its content (e.g. a description of the current choice).</summary>
+    public class LiveText : MonoBehaviour
+    {
+        public Func<string> get;
+        public TextMeshProUGUI text;
+        public void Refresh() { if (get != null) text.text = get(); }
+    }
+}
