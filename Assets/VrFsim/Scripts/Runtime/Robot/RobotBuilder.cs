@@ -215,7 +215,7 @@ namespace VrFsim.Robot
             {
                 case IntakeMount.Front: Mouth(Vector2.up); break;
                 case IntakeMount.Back: Mouth(Vector2.down); break;
-                case IntakeMount.Side: Mouth(Vector2.right); break;
+                case IntakeMount.Side: Mouth(Vector2.right); Mouth(Vector2.left); break;
                 case IntakeMount.FrontAndBack: Mouth(Vector2.up); Mouth(Vector2.down); break;
             }
             if (c.intakeKind == IntakeKind.Ramp)

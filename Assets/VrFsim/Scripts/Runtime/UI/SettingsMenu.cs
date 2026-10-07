@@ -127,6 +127,7 @@ namespace VrFsim.UI
             dirty = false;
             SettingsStore.Commit();
             foreach (var r in rows) r.Refresh();
+            foreach (var l in liveTexts) if (l) l.Refresh();
             UpdateFooter();
         }
 
@@ -204,12 +205,13 @@ namespace VrFsim.UI
             kbGroup.ignoreParentGroups = true;
         }
 
-        void ShowTab(int i)
+        internal void ShowTab(int i)
         {
             currentTab = i;
             for (int c = content.childCount - 1; c >= 0; c--) Destroy(content.GetChild(c).gameObject);
             content.DetachChildren();
             rows.Clear();
+            liveTexts.Clear();
             tabs[i].build();
             for (int t = 0; t < tabs.Length; t++) tabButtons[t].targetGraphic.color = t == i ? new Color(0.3f, 0.26f, 0.1f) : UiKit.Row;
             foreach (var r in rows) r.Refresh();
@@ -275,7 +277,7 @@ namespace VrFsim.UI
             st.targetGraphic = go.GetComponent<Image>();
             st.colors = UiKit.Colors();
             st.getText = text;
-            st.step = d => { step(d); Changed(restart); };
+            st.step = d => { step(d); Changed(restart); foreach (var l in liveTexts) if (l) l.Refresh(); };
             if (submit != null) st.submit = () => { submit(); Changed(restart); };
             var left = UiKit.Button(row, "<", () => { st.step(-1); st.Refresh(); }, 38, 24); UiKit.Size(left, -1, 44);
             st.valueText = UiKit.Text(row, "Value", "", 22, UiKit.Highlight, TextAlignmentOptions.Center);
@@ -323,7 +325,11 @@ namespace VrFsim.UI
             slider.fillRect = fill.rectTransform;
             slider.handleRect = handle.rectTransform;
             slider.targetGraphic = handle;
-            slider.colors = UiKit.Colors();
+            var sc = UiKit.Colors();
+            sc.normalColor = new Color(0.85f, 0.86f, 0.9f);
+            sc.highlightedColor = Color.white;
+            sc.selectedColor = UiKit.Highlight;
+            slider.colors = sc;
             slider.direction = UnityEngine.UI.Slider.Direction.LeftToRight;
             return slider;
         }
@@ -412,45 +418,28 @@ namespace VrFsim.UI
             Action("Restart match now", () => { CommitNow(); needsRestart = false; MatchController.Instance?.ResetMatch(); SetOpen(false); });
         }
 
+        // Labels and one-line descriptions, as dsim's builder shows them.
+        static string IntakeName(IntakeKind k) => k == IntakeKind.Sweeper ? "Sweeper" : k == IntakeKind.SideRollers ? "Side rollers" : "Deployable ramp";
+        static string IntakeBlurb(IntakeKind k) =>
+            k == IntakeKind.Sweeper ? "Ground POLLEN only - can't reach into a FLOWER's opening"
+            : k == IntakeKind.SideRollers ? "Reaches into a FLOWER's opening and pulls the bottom POLLEN out"
+            : "Deploy to wedge under a FLOWER's bottom POLLEN - folded, it takes nothing";
+        static string LauncherName(LauncherKind k) => k == LauncherKind.Turret ? "Single turret" : k == LauncherKind.DoubleTurret ? "Double turret" : "Dumper";
+        static string LauncherBlurb(LauncherKind k) =>
+            k == LauncherKind.Turret ? "POLLEN only - aims itself"
+            : k == LauncherKind.DoubleTurret ? "One POLLEN turret, one NECTAR turret"
+            : "POLLEN and NECTAR - turn to aim";
+        static string MountName(IntakeMount m) => m == IntakeMount.Front ? "FRONT" : m == IntakeMount.Back ? "BACK" : m == IntakeMount.Side ? "SIDES" : "FRONT+BACK";
+        static string DrivetrainName(DrivetrainType d) => d == DrivetrainType.XDrive ? "X-drive" : d.ToString();
+
         void BuildRobotTab()
         {
-            Header("Robot");
+            Header("Start from");
             var presets = RobotPresets.All();
             Stepper("Preset", () => presets[presetIndex].name + " - " + presets[presetIndex].teamName,
                 d => presetIndex = (presetIndex + d + presets.Length) % presets.Length, false,
                 () => LoadRobot(RobotPresets.All()[presetIndex]));
             Action("Load selected preset", () => LoadRobot(RobotPresets.All()[presetIndex]));
-            TextField("Robot name", () => R.name, v => R.name = v, true);
-            Stepper("Team number", () => R.teamNumber == 0 ? "-" : R.teamNumber.ToString(), d => R.teamNumber = Mathf.Clamp(R.teamNumber + d * teamStep, 0, 99999), true,
-                () => teamStep = teamStep >= 10000 ? 1 : teamStep * 10);
-            Info("Team number: left/right adds the step, A changes the step (1, 10, 100, 1000, 10000).");
-            Choice("Drivetrain", () => R.drivetrain, v => { R.drivetrain = v; ShowTabDeferred(); }, true);
-            Slider("Length (in)", () => R.lengthIn, v => R.lengthIn = v, RobotConfig.MinSize, RobotConfig.MaxSize, RobotConfig.SizeStep, F1, true);
-            Slider("Width (in)", () => R.widthIn, v => R.widthIn = v, RobotConfig.MinSize, RobotConfig.MaxSize, RobotConfig.SizeStep, F1, true);
-            Slider("Height, deployed (in)", () => R.heightIn, v => R.heightIn = v, RobotConfig.MinHeight, RobotConfig.MaxHeight, 1f, F0, true);
-            Slider("Height, stowed (in)", () => R.stowHeightIn, v => R.stowHeightIn = v, RobotConfig.MinHeight, RobotConfig.MaxHeight, 1f, F0, true);
-            var mr = RobotConfig.MassRange(R.drivetrain);
-            Slider("Mass (lb)", () => R.massLb, v => R.massLb = v, mr.x, mr.y, 0.5f, F1, true);
-            var rr = RobotConfig.RpmRange(R.drivetrain);
-            Slider("Drive wheel RPM", () => R.driveRpm, v => R.driveRpm = v, rr.x, rr.y, 5f, F0, true);
-            if (R.drivetrain == DrivetrainType.Butterfly)
-                Slider("Traction-mode RPM", () => R.butterflyTractionRpm, v => R.butterflyTractionRpm = v,
-                    RobotConfig.ButterflyTractionRpmRange.x, RobotConfig.ButterflyTractionRpmRange.y, 5f, F0, true);
-            Info(DriveSummary());
-            Header("Colours");
-            Stepper("Chassis colour", () => PaletteName(R.chassisColor), d => R.chassisColor = PaletteStep(R.chassisColor, d), true);
-            Toggle("Accent matches chassis", () => R.accentMatchesChassis, v => { R.accentMatchesChassis = v; ShowTabDeferred(); }, true);
-            if (!R.accentMatchesChassis)
-                Stepper("Accent colour", () => PaletteName(R.accentColor), d => R.accentColor = PaletteStep(R.accentColor, d), true);
-            Choice("Decal", () => R.decal, v => R.decal = v, true);
-            Choice("Sign plate", () => R.plate, v => R.plate = v, true);
-            Header("Saved robots");
-            Action("Save current robot", () =>
-            {
-                S.savedRobots.Add(R.Clone());
-                if (S.savedRobots.Count > SimSettings.MaxSavedRobots) S.savedRobots.RemoveAt(0);
-                Changed(); ShowTab(currentTab);
-            });
             if (S.savedRobots.Count > 0)
             {
                 savedSlot = Mathf.Clamp(savedSlot, 0, S.savedRobots.Count - 1);
@@ -459,31 +448,177 @@ namespace VrFsim.UI
                 Action("Load saved robot", () => LoadRobot(S.savedRobots[savedSlot].Clone()));
                 Action("Delete saved robot", () => { S.savedRobots.RemoveAt(savedSlot); savedSlot = 0; Changed(); ShowTab(currentTab); });
             }
-        }
 
-        int teamStep = 1;
+            Header("Build");
+            TextField("Robot name", () => R.name, v => R.name = v, true);
+            TextField("Team name", () => R.teamName, v => R.teamName = v, true);
+            TextField("Team #", () => R.teamNumber == 0 ? "" : R.teamNumber.ToString(), v =>
+            {
+                int.TryParse(new string(System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Where(v ?? "", char.IsDigit))), out int n);
+                R.teamNumber = Mathf.Clamp(n, 0, 99999);
+            }, true);
+            Action("Save this robot", () =>
+            {
+                S.savedRobots.Add(R.Clone());
+                if (S.savedRobots.Count > SimSettings.MaxSavedRobots) S.savedRobots.RemoveAt(0);
+                Changed(); ShowTabDeferred();
+            });
+
+            Header("Drivetrain");
+            Stepper("Drivetrain", () => DrivetrainName(R.drivetrain), d =>
+            {
+                var all = (DrivetrainType[])Enum.GetValues(typeof(DrivetrainType));
+                R.drivetrain = all[(Array.IndexOf(all, R.drivetrain) + d + all.Length) % all.Length];
+                R.Validate();
+                ShowTabDeferred();
+            }, true);
+            var rr = RobotConfig.RpmRange(R.drivetrain);
+            Slider(R.drivetrain == DrivetrainType.Butterfly ? "Mecanum RPM" : "Drive RPM", () => R.driveRpm, v => R.driveRpm = v, rr.x, rr.y, 5f, F0, true);
+            if (R.drivetrain == DrivetrainType.Butterfly)
+                Slider("Traction RPM", () => R.butterflyTractionRpm, v => R.butterflyTractionRpm = v,
+                    RobotConfig.ButterflyTractionRpmRange.x, RobotConfig.ButterflyTractionRpmRange.y, 5f, F0, true);
+            Live(DriveSummary);
+
+            Header("Frame");
+            Slider("Length", () => R.lengthIn, v => R.lengthIn = v, RobotConfig.MinSize, RobotConfig.MaxSize, RobotConfig.SizeStep, v => v.ToString("0.0") + "\"", true);
+            Slider("Width", () => R.widthIn, v => R.widthIn = v, RobotConfig.MinSize, RobotConfig.MaxSize, RobotConfig.SizeStep, v => v.ToString("0.0") + "\"", true);
+            var mr = RobotConfig.MassRange(R.drivetrain);
+            Slider("Mass", () => R.massLb, v => R.massLb = v, mr.x, mr.y, 0.5f, v => v.ToString("0.0") + " lb", true);
+            Slider("Hopper", () => R.storage, v => R.storage = Mathf.RoundToInt(v), RobotConfig.StorageMin, RobotConfig.StorageMax, 1f,
+                v => $"{v:0} / {RobotConfig.StorageMax} pollen", true);
+            Slider("Height", () => R.heightIn, v => R.heightIn = v, RobotConfig.MinHeight, RobotConfig.MaxHeight, 1f, v => v.ToString("0") + "\"", true);
+            Slider("Height, starting configuration", () => R.stowHeightIn, v => R.stowHeightIn = v, RobotConfig.MinHeight, RobotConfig.MaxHeight, 1f, v => v.ToString("0") + "\"", true);
+
+            Header("Look");
+            Stepper("Chassis colour", () => PaletteName(R.chassisColor), d => R.chassisColor = PaletteStep(R.chassisColor, d), true);
+            Toggle("Accent matches chassis", () => R.accentMatchesChassis, v => { R.accentMatchesChassis = v; ShowTabDeferred(); }, true);
+            if (!R.accentMatchesChassis)
+                Stepper("Accent colour", () => PaletteName(R.accentColor), d => R.accentColor = PaletteStep(R.accentColor, d), true);
+            Choice("Decal", () => R.decal, v => R.decal = v, true);
+            Choice("Sign plate", () => R.plate, v => R.plate = v, true);
+        }
 
         void BuildMechanismTab()
         {
             Header("Intake");
-            Choice("Intake type", () => R.intakeKind, v => R.intakeKind = v, true);
+            Stepper("Intake", () => IntakeName(R.intakeKind), d =>
+            {
+                var all = (IntakeKind[])Enum.GetValues(typeof(IntakeKind));
+                R.intakeKind = all[(Array.IndexOf(all, R.intakeKind) + d + all.Length) % all.Length];
+            }, true);
+            Live(() => IntakeBlurb(R.intakeKind));
+            Stepper("Intake mount", () => MountName(R.intakeMount), d =>
+            {
+                var all = (IntakeMount[])Enum.GetValues(typeof(IntakeMount));
+                R.intakeMount = all[(Array.IndexOf(all, R.intakeMount) + d + all.Length) % all.Length];
+            }, true);
             Choice("Intake reach", () => R.intakeReach, v => R.intakeReach = v, true);
-            Choice("Intake mount", () => R.intakeMount, v => R.intakeMount = v, true);
-            Info("Side rollers, or a deployed ramp, can pull POLLEN out of a FLOWER's retrieval opening; a sweeper cannot.");
+
             Header("Launcher");
-            Choice("Launcher", () => R.launcher, v => { R.launcher = v; ShowTabDeferred(); }, true);
-            Choice(R.launcher == LauncherKind.DoubleTurret ? "POLLEN turret mount" : "Launcher mount", () => R.launcherMount, v => R.launcherMount = v, true);
-            if (R.launcher == LauncherKind.DoubleTurret) Choice("NECTAR turret mount", () => R.launcherMount2, v => R.launcherMount2 = v, true);
-            if (R.launcher == LauncherKind.Dumper) Slider("Hood angle (deg)", () => R.hoodDeg, v => R.hoodDeg = v, RobotConfig.HoodMin, RobotConfig.HoodMax, 1f, F0, true);
-            Header("Box Tube (places into FLOWERS)");
-            Toggle("Box Tube fitted", () => R.hasBoxTube, v => { R.hasBoxTube = v; ShowTabDeferred(); }, true);
-            if (R.hasBoxTube) Choice("Box Tube mount", () => R.boxTubeMount, v => R.boxTubeMount = v, true);
-            Header("Storage and passing");
-            Slider("Storage capacity", () => R.storage, v => R.storage = Mathf.RoundToInt(v), RobotConfig.StorageMin, RobotConfig.StorageMax, 1f, F0, true);
+            Stepper("Launcher", () => LauncherName(R.launcher), d =>
+            {
+                var all = (LauncherKind[])Enum.GetValues(typeof(LauncherKind));
+                R.launcher = all[(Array.IndexOf(all, R.launcher) + d + all.Length) % all.Length];
+                R.Validate();
+                ShowTabDeferred();
+            }, true);
+            Live(() => LauncherBlurb(R.launcher));
+            string other(MountPos p, bool forFirst)
+            {
+                if (R.hasBoxTube && R.boxTubeMount == p) return "Box Tube";
+                if (forFirst && R.launcher == LauncherKind.DoubleTurret && R.launcherMount2 == p) return "NECTAR";
+                if (!forFirst && R.launcherMount == p) return "POLLEN";
+                return null;
+            }
+            switch (R.launcher)
+            {
+                case LauncherKind.Turret:
+                    MountGrid("Turret", () => R.launcherMount, v => R.launcherMount = v,
+                        p => !(R.hasBoxTube && R.boxTubeMount == p), p => other(p, true));
+                    break;
+                case LauncherKind.DoubleTurret:
+                    MountGrid("POLLEN turret", () => R.launcherMount, v => R.launcherMount = v,
+                        p => p != MountPos.Center && !(R.hasBoxTube && R.boxTubeMount == p), p => other(p, true));
+                    MountGrid("NECTAR turret", () => R.launcherMount2, v => R.launcherMount2 = v,
+                        p => p != MountPos.Center && !RobotConfig.Adjacent(R.launcherMount, p) && !(R.hasBoxTube && R.boxTubeMount == p),
+                        p => other(p, false));
+                    Live(() => "Turret rings can't sit in neighbouring cells, so the NECTAR turret goes at least two cells away.");
+                    break;
+                case LauncherKind.Dumper:
+                    MountGrid("Dumper edge", () => R.launcherMount, v => R.launcherMount = v,
+                        p => RobotConfig.IsEdge(p) && !(R.hasBoxTube && R.boxTubeMount == p), p => other(p, true));
+                    Slider("Hood angle", () => R.hoodDeg, v => R.hoodDeg = v, RobotConfig.HoodMin, RobotConfig.HoodMax, 1f, v => v.ToString("0") + " deg", true);
+                    break;
+            }
+
+            Header("Flower scoring");
+            Stepper("Flower scoring", () => R.hasBoxTube ? "Box Tube" : "None", d => { R.hasBoxTube = !R.hasBoxTube; R.Validate(); ShowTabDeferred(); }, true);
+            if (R.hasBoxTube)
+                MountGrid("Box Tube", () => R.boxTubeMount, v => R.boxTubeMount = v,
+                    p => p != MountPos.Center && R.BoxTubeCellFree(p),
+                    p => R.launcherMount == p ? (R.launcher == LauncherKind.DoubleTurret ? "POLLEN" : "Launcher")
+                        : R.launcher == LauncherKind.DoubleTurret && R.launcherMount2 == p ? "NECTAR" : null);
+            Live(() => R.CarriesNectar ? "This build can carry its own alliance's NECTAR." : "A single turret without a Box Tube carries POLLEN only.");
+
+            Header("Passing");
             Slider("Pass target X (in, red frame)", () => R.passTargetIn.x, v => R.passTargetIn.x = v, -70f, 70f, 1f, F0);
             Slider("Pass target Y (in)", () => R.passTargetIn.y, v => R.passTargetIn.y = v, -70f, 70f, 1f, F0);
-            Info(R.CarriesNectar ? "This build can carry its own alliance's NECTAR." : "A single turret without a Box Tube carries POLLEN only.");
         }
+
+        /// <summary>A 3x3 chassis-map row (dsim's mount picker).</summary>
+        void MountGrid(string label, Func<MountPos> get, Action<MountPos> set, Func<MountPos, bool> allowed, Func<MountPos, string> marker)
+        {
+            var row = RowBase(label, 150f);
+            var grid = row.gameObject.AddComponent<MountGridRow>();
+            grid.targetGraphic = row.GetComponent<Image>();
+            grid.colors = UiKit.Colors();
+            grid.get = get;
+            grid.allowed = allowed;
+            grid.marker = marker;
+            grid.set = v =>
+            {
+                set(v);
+                R.Validate();
+                Changed(true);
+                foreach (var r in rows) r.Refresh();
+            };
+            var holder = UiKit.Rect(row, "Grid");
+            UiKit.Size(holder, 138, 420);
+            var col = holder.gameObject.AddComponent<VerticalLayoutGroup>();
+            col.spacing = 2; col.childControlHeight = true; col.childControlWidth = true; col.childForceExpandWidth = true;
+            var front = UiKit.Text(holder, "Front", "^ FRONT", 16, UiKit.TextDim, TextAlignmentOptions.Center);
+            UiKit.Size(front, 18);
+            var cellsRoot = UiKit.Rect(holder, "Cells");
+            UiKit.Size(cellsRoot, 114);
+            var gl = cellsRoot.gameObject.AddComponent<GridLayoutGroup>();
+            gl.cellSize = new Vector2(136, 36); gl.spacing = new Vector2(4, 3);
+            gl.constraint = GridLayoutGroup.Constraint.FixedColumnCount; gl.constraintCount = 3;
+            foreach (MountPos p in Enum.GetValues(typeof(MountPos)))
+            {
+                var pos = p;
+                var img = UiKit.Box(cellsRoot, "Cell_" + p, UiKit.Row);
+                var b = img.gameObject.AddComponent<Button>();
+                b.targetGraphic = img;
+                b.navigation = new Navigation { mode = Navigation.Mode.None };
+                b.onClick.AddListener(() => grid.Pick(pos));
+                var t = UiKit.Text(img.transform, "T", MountGridRow.Name(p), 15, UiKit.TextMain, TextAlignmentOptions.Center);
+                UiKit.Fill(t.rectTransform);
+                grid.cells.Add((pos, img, t, b));
+            }
+            rows.Add(grid);
+        }
+
+        /// <summary>A description line that updates when the choice above it changes.</summary>
+        void Live(Func<string> text)
+        {
+            var t = UiKit.Text(content, "Live", text(), 18, UiKit.TextDim);
+            UiKit.Size(t, 28);
+            var lt = t.gameObject.AddComponent<LiveText>();
+            lt.get = text; lt.text = t;
+            liveTexts.Add(lt);
+        }
+
+        readonly List<LiveText> liveTexts = new List<LiveText>();
 
         void BuildDrivingTab()
         {

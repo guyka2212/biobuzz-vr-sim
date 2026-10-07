@@ -12,6 +12,7 @@ namespace VrFsim.Settings
     /// POLLEN out of a FLOWER's retrieval opening.</summary>
     public enum IntakeKind { Sweeper, SideRollers, Ramp }
 
+    /// <summary>Which chassis edges carry intake rollers. Side = both sides, dsim's 'SIDES'.</summary>
     public enum IntakeMount { Front, Back, Side, FrontAndBack }
 
     public enum LauncherKind { Turret, DoubleTurret, Dumper }
@@ -106,7 +107,7 @@ namespace VrFsim.Settings
         /// <summary>Extra mass the mechanisms add on top of the bare drivetrain floor.</summary>
         public float MechanismMassLb()
         {
-            float m = 1.5f * (intakeMount == IntakeMount.FrontAndBack ? 2 : 1);
+            float m = 1.5f * (intakeMount == IntakeMount.FrontAndBack || intakeMount == IntakeMount.Side ? 2 : 1);
             m += launcher == LauncherKind.Turret ? 5f : launcher == LauncherKind.DoubleTurret ? 8.5f : 3.5f;
             if (hasBoxTube) m += 1.5f;
             return m;
@@ -174,7 +175,21 @@ namespace VrFsim.Settings
 
         public static MountPos Opposite(MountPos p) => (MountPos)(8 - (int)p);
 
-        static MountPos ToEdge(MountPos p) => p == MountPos.Center ? MountPos.Front : p;
+        /// <summary>The four edge cells (a turretless dumper fires along a whole edge).</summary>
+        public static bool IsEdge(MountPos p) => p == MountPos.Front || p == MountPos.Back || p == MountPos.Left || p == MountPos.Right;
+
+        static MountPos ToEdge(MountPos p)
+        {
+            switch (p)
+            {
+                case MountPos.FrontLeft: case MountPos.FrontRight: case MountPos.Center: return MountPos.Front;
+                case MountPos.BackLeft: case MountPos.BackRight: return MountPos.Back;
+                default: return p;
+            }
+        }
+
+        /// <summary>Can the Box Tube go in this cell without clashing with the launcher?</summary>
+        public bool BoxTubeCellFree(MountPos p) => p != MountPos.Center && !Clashes(p);
 
         bool Clashes(MountPos p)
         {

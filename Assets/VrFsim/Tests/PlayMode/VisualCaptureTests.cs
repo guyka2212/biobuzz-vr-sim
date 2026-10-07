@@ -79,6 +79,44 @@ namespace VrFsim.Tests
             Shot(cam, dir, "06c_results_hidden", head.position, head.rotation);
         }
 
+        [UnityTest, Explicit("Renders screenshots; run with Tools/unity-capture.sh")]
+        public IEnumerator CaptureMenu()
+        {
+            var s = new SimSettings();
+            s.robot.launcher = LauncherKind.DoubleTurret;
+            s.robot.launcherMount = MountPos.Left;
+            s.robot.launcherMount2 = MountPos.Right;
+            s.robot.hasBoxTube = true;
+            s.robot.boxTubeMount = MountPos.Back;
+            s.robot.Validate();
+            SettingsStore.UseTransient(s);
+            SimWorld.Field = null;
+            SceneManager.LoadScene("Main");
+            for (int i = 0; i < 30; i++) yield return null;
+            var menu = Object.FindAnyObjectByType<UI.SettingsMenu>();
+            menu.SetOpen(true);
+            string dir = Path.Combine(Application.dataPath, "../Logs/Captures");
+            Directory.CreateDirectory(dir);
+            var cam = new GameObject("CaptureCam").AddComponent<Camera>();
+            cam.fieldOfView = 60f;
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.backgroundColor = Color.black;
+            var canvas = GameObject.Find("SettingsMenu").transform;
+            foreach (var (tab, file) in new[] { (1, "07_menu_robot"), (2, "08_menu_mechanisms") })
+            {
+                menu.ShowTab(tab);
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                var pos = canvas.position - canvas.forward * 1.05f;
+                Shot(cam, dir, file, pos, Quaternion.LookRotation(canvas.forward));
+                // Scroll down for the lower half of the tab.
+                var content = canvas.Find("Viewport/Content") as RectTransform;
+                content.anchoredPosition = new Vector2(0f, 520f);
+                yield return null;
+                Shot(cam, dir, file + "_lower", pos, Quaternion.LookRotation(canvas.forward));
+            }
+        }
+
         static void Shot(Camera cam, string dir, string name, Vector3 pos, Quaternion rot)
         {
             cam.transform.SetPositionAndRotation(pos, rot);
