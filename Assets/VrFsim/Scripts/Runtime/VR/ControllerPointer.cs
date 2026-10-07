@@ -23,10 +23,7 @@ namespace VrFsim.VR
             line.endWidth = 0.001f;
             line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             line.receiveShadows = false;
-            var mat = new Material(Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Sprites/Default"));
-            mat.color = new Color(0.4f, 0.85f, 1f, 1f);
-            if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", mat.color);
-            line.sharedMaterial = mat;
+            line.sharedMaterial = MaterialLibrary.Get().unlit;
         }
 
         void LateUpdate()

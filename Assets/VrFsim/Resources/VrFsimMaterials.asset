@@ -33,7 +33,8 @@ MonoBehaviour:
   robotWheel: {fileID: 2100000, guid: 3badd76777c4ea34d8fd101cddb8d0db, type: 2}
   bumperRed: {fileID: 2100000, guid: 7a639e3d6ebb67446856db954ca420a2, type: 2}
   bumperBlue: {fileID: 2100000, guid: 42cb58f6a62f5684e984809d792267af, type: 2}
-  blobShadow: {fileID: 0}
+  unlit: {fileID: 2100000, guid: e9b1b5a44abf6f14a8f611dde5811948, type: 2}
+  vignette: {fileID: 2100000, guid: c01f7af987b7a6c44ad37b69d1eb78f6, type: 2}
   tilePhysics: {fileID: 13400000, guid: 77449ed8353533f46b7e7c9d932aec36, type: 2}
   wallPhysics: {fileID: 13400000, guid: e963f68d7a00ead4a8b0adfdd6605fbe, type: 2}
   ballPhysics: {fileID: 13400000, guid: 1436293ba8babcb4e9722cf3f43d2b19, type: 2}

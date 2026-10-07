@@ -28,7 +28,7 @@ namespace VrFsim.UI
         TextMeshProUGUI footer, title;
         readonly List<IMenuRow> rows = new List<IMenuRow>();
         readonly List<Button> tabButtons = new List<Button>();
-        int currentTab, savedSlot, presetIndex;
+        int currentTab, savedSlot, savedStart, presetIndex;
         bool open, dirty, needsRestart;
         float dirtyAt;
 
@@ -384,6 +384,28 @@ namespace VrFsim.UI
                 Slider("Custom start Y (in)", () => S.match.customStart.yIn, v => S.match.customStart.yIn = v, -62f, 62f, 0.5f, F1, true);
                 Slider("Custom heading (deg)", () => S.match.customStart.headingDeg, v => S.match.customStart.headingDeg = v, -180f, 180f, 5f, F0, true);
                 Info("A custom start must still follow G304: on your half, touching the wall, out of the LOADING ZONE, clear of FLOWERS.");
+                Action("Save this custom start", () =>
+                {
+                    var c = S.match.customStart;
+                    S.match.savedStarts.Add(new CustomPose { xIn = c.xIn, yIn = c.yIn, headingDeg = c.headingDeg });
+                    if (S.match.savedStarts.Count > 8) S.match.savedStarts.RemoveAt(0);
+                    Changed(); ShowTabDeferred();
+                });
+                if (S.match.savedStarts.Count > 0)
+                {
+                    savedStart = Mathf.Clamp(savedStart, 0, S.match.savedStarts.Count - 1);
+                    Stepper("Saved start", () =>
+                    {
+                        var p = S.match.savedStarts[savedStart];
+                        return $"{savedStart + 1}/{S.match.savedStarts.Count}: ({p.xIn:0}, {p.yIn:0}) {p.headingDeg:0} deg";
+                    }, d => savedStart = (savedStart + d + S.match.savedStarts.Count) % S.match.savedStarts.Count);
+                    Action("Use saved start", () =>
+                    {
+                        var p = S.match.savedStarts[savedStart];
+                        S.match.customStart = new CustomPose { xIn = p.xIn, yIn = p.yIn, headingDeg = p.headingDeg };
+                        Changed(true); ShowTabDeferred();
+                    });
+                }
             }
             Choice("AUTO routine", () => S.match.auto, v => S.match.auto = v, true);
             Header("Practice robots");

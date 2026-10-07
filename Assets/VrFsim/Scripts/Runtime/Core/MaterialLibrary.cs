@@ -40,7 +40,8 @@ namespace VrFsim
         public Material bumperBlue;
 
         [Header("UI / effects")]
-        public Material blobShadow;
+        public Material unlit;      // controller laser
+        public Material vignette;   // comfort vignette (transparent)
 
         [Header("Physics")]
         public PhysicsMaterial tilePhysics;
@@ -73,6 +74,24 @@ namespace VrFsim
             {
                 m.EnableKeyword("_EMISSION");
                 m.SetColor("_EmissionColor", c * 0.6f);
+            }
+            return m;
+        }
+
+        public static Material NewUnlit(string name, Color c, bool transparent)
+        {
+            var sh = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color");
+            var m = new Material(sh) { name = name, color = c };
+            if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", c);
+            if (transparent)
+            {
+                m.SetFloat("_Surface", 1f);
+                m.SetFloat("_Blend", 0f);
+                m.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                m.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                m.SetFloat("_ZWrite", 0f);
+                m.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+                m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Overlay;
             }
             return m;
         }
@@ -112,6 +131,9 @@ namespace VrFsim
             if (!robotWheel) robotWheel = NewMat("RobotWheel", new Color(0.08f, 0.08f, 0.08f), 0.1f);
             if (!bumperRed) bumperRed = NewMat("BumperRed", new Color(0.78f, 0.06f, 0.08f), 0.15f);
             if (!bumperBlue) bumperBlue = NewMat("BumperBlue", new Color(0.06f, 0.22f, 0.8f), 0.15f);
+
+            if (!unlit) unlit = NewUnlit("Unlit", new Color(0.4f, 0.85f, 1f), false);
+            if (!vignette) vignette = NewUnlit("Vignette", Color.black, true);
 
             if (!tilePhysics) tilePhysics = NewPhys("Tile", 0.6f, 0.7f, 0.25f);
             if (!wallPhysics) wallPhysics = NewPhys("Wall", 0.25f, 0.3f, 0.45f);

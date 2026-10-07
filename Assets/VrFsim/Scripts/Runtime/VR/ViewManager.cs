@@ -104,6 +104,7 @@ namespace VrFsim.VR
             Origin.RequestedTrackingOriginMode = XROrigin.TrackingOriginMode.Floor;
             Origin.CameraYOffset = DesktopEyeHeight;
             root.SetActive(true);
+            gameObject.AddComponent<ComfortVignette>().Init(root.transform, Cam);
         }
 
         static Transform Controller(Transform parent, string name, string hand)
