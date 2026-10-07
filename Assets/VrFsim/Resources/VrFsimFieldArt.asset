@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac21597195839404c89887b1f00817cb, type: 3}
   m_Name: VrFsimFieldArt
   m_EditorClassIdentifier: VrFsim.Runtime::VrFsim.Game.FieldArt
-  tiles: {fileID: 0}
-  perimeter: {fileID: 0}
+  tiles: {fileID: 919132149155446097, guid: addc450ca3c785b4d960192830ebadf3, type: 3}
+  perimeter: {fileID: 919132149155446097, guid: ea99bc6d3f680d5468238a18d8739aae, type: 3}
   venue: {fileID: 0}
-  hiveFrame: {fileID: 0}
-  hiveTrayRed: {fileID: 0}
-  hiveTrayBlue: {fileID: 0}
-  flower: {fileID: 0}
-  pollenMesh: {fileID: 0}
-  nectarMesh: {fileID: 0}
+  hiveFrame: {fileID: 919132149155446097, guid: 93f894441a37eab41b24c7e81638bb64, type: 3}
+  hiveTrayRed: {fileID: 919132149155446097, guid: 383180d90d296fd4898436f887d91a12, type: 3}
+  hiveTrayBlue: {fileID: 919132149155446097, guid: befaea04b172ed342a2ed13ff3c49f56, type: 3}
+  flower: {fileID: 919132149155446097, guid: 501695e7a274cee45862d797e3960fc9, type: 3}
+  pollenMesh: {fileID: 5926638692840513560, guid: 9ca00e522043b55439e543d2ca4c1afc, type: 3}
+  nectarMesh: {fileID: 5926638692840513560, guid: 9ca00e522043b55439e543d2ca4c1afc, type: 3}

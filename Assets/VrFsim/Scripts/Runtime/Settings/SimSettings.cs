@@ -15,7 +15,8 @@ namespace VrFsim.Settings
     public enum QualityPreset { Low, Medium, High, Custom }
     public enum Msaa { Off = 1, X2 = 2, X4 = 4 }
     public enum ShadowLevel { Off, Low, High }
-    public enum ElementShadows { None, Blob, Real }
+    /// <summary>Which moving objects cast realtime shadows (the field's lighting is baked).</summary>
+    public enum DynamicShadows { Off, RobotsOnly, RobotsAndElements }
     public enum Venue { Arena, Gym, Night }
     public enum PerfOverlay { Off, Fps, Full }
 
@@ -138,7 +139,7 @@ namespace VrFsim.Settings
         [Range(0.6f, 1.4f)] public float renderScale = 1f;
         public Msaa msaa = Msaa.X4;
         public ShadowLevel shadows = ShadowLevel.Low;
-        public ElementShadows elementShadows = ElementShadows.Blob;
+        public DynamicShadows dynamicShadows = DynamicShadows.RobotsOnly;
         public float targetRefreshRate = 90f;
         public Venue venue = Venue.Arena;
         public bool reducedMotion = true;
@@ -157,11 +158,11 @@ namespace VrFsim.Settings
             switch (p)
             {
                 case QualityPreset.Low:
-                    renderScale = 0.8f; msaa = Msaa.Off; shadows = ShadowLevel.Off; elementShadows = ElementShadows.None; break;
+                    renderScale = 0.8f; msaa = Msaa.Off; shadows = ShadowLevel.Off; dynamicShadows = DynamicShadows.Off; break;
                 case QualityPreset.Medium:
-                    renderScale = 1f; msaa = Msaa.X2; shadows = ShadowLevel.Low; elementShadows = ElementShadows.Blob; break;
+                    renderScale = 1f; msaa = Msaa.X2; shadows = ShadowLevel.Low; dynamicShadows = DynamicShadows.RobotsOnly; break;
                 case QualityPreset.High:
-                    renderScale = 1.2f; msaa = Msaa.X4; shadows = ShadowLevel.High; elementShadows = ElementShadows.Real; break;
+                    renderScale = 1.2f; msaa = Msaa.X4; shadows = ShadowLevel.High; dynamicShadows = DynamicShadows.RobotsAndElements; break;
             }
         }
     }

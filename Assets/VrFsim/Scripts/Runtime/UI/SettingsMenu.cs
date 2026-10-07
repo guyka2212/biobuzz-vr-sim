@@ -551,7 +551,7 @@ namespace VrFsim.UI
             Slider("Render scale", () => S.graphics.renderScale, v => { S.graphics.renderScale = v; S.graphics.preset = QualityPreset.Custom; }, 0.6f, 1.4f, 0.05f, F2);
             Choice("Anti-aliasing (MSAA)", () => S.graphics.msaa, v => { S.graphics.msaa = v; S.graphics.preset = QualityPreset.Custom; });
             Choice("Shadows", () => S.graphics.shadows, v => { S.graphics.shadows = v; S.graphics.preset = QualityPreset.Custom; });
-            Choice("Element shadows", () => S.graphics.elementShadows, v => { S.graphics.elementShadows = v; S.graphics.preset = QualityPreset.Custom; });
+            Choice("Moving-object shadows", () => S.graphics.dynamicShadows, v => { S.graphics.dynamicShadows = v; S.graphics.preset = QualityPreset.Custom; });
             Choice("Venue", () => S.graphics.venue, v => S.graphics.venue = v);
             Slider("Desktop frame cap (no headset)", () => S.graphics.targetRefreshRate, v => S.graphics.targetRefreshRate = v, 60f, 144f, 1f, F0);
             Info("In a headset the refresh rate is set by your VR runtime (SteamVR / Meta / WMR settings).");

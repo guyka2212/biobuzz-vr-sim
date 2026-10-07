@@ -261,6 +261,7 @@ namespace VrFsim.Match
             if (s.match.opponent1 == PracticeSeat.Dummy) SpawnDummy(a.Opponent(), StartAnchor.WallCenter, 3);
             if (s.match.opponent2 == PracticeSeat.Dummy) SpawnDummy(a.Opponent(), StartAnchor.WallNearAudience, 4);
             PlayerSpawned?.Invoke(Player);
+            SettingsStore.Commit(); // re-applies graphics (shadow casting) to the new robots
         }
 
         void SpawnDummy(Alliance a, StartAnchor anchor, int n)

@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: VrFsimRobotArt
   m_EditorClassIdentifier: VrFsim.Runtime::VrFsim.Robot.RobotArt
   chassis: {fileID: 0}
-  mecanumWheel: {fileID: 0}
-  tractionWheel: {fileID: 0}
-  omniWheel: {fileID: 0}
-  swerveModule: {fileID: 0}
-  turret: {fileID: 0}
-  dumper: {fileID: 0}
-  boxTube: {fileID: 0}
-  intakeRoller: {fileID: 0}
+  mecanumWheel: {fileID: -4611600293250547242, guid: 03eb7274e0c10044eb6a97e7c72a124e, type: 3}
+  tractionWheel: {fileID: -4758706856370216109, guid: 1688fea742eec5742ab18790772c7838, type: 3}
+  omniWheel: {fileID: -7041309484264714707, guid: 1dbef9592a928b443a945e070f968aa9, type: 3}
+  swerveModule: {fileID: -7580416949450435024, guid: 21d897cf6c199a8499fa82cfb8fe9a7f, type: 3}
+  turret: {fileID: 2165579551946672802, guid: 3c0cf11d717982a4c9252e950d6d9e4c, type: 3}
+  dumper: {fileID: 7318196046086855148, guid: ef71e588c64367e4380fec0719602f08, type: 3}
+  boxTube: {fileID: 3651282148772268681, guid: d56551f244fd93e4095a664943912417, type: 3}
+  intakeRoller: {fileID: -2708039521331412082, guid: 61c6135aee9af484589cd1be5367f68f, type: 3}

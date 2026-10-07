@@ -25,6 +25,7 @@ namespace VrFsim
         public Material flowerRing;
         public Material venueFloor;
         public Material venueWall;
+        public Material accentYellow;
 
         [Header("Elements")]
         public Material pollen;
@@ -102,6 +103,7 @@ namespace VrFsim
             if (!flowerRing) flowerRing = NewMat("FlowerRing", new Color(0.2f, 0.62f, 0.24f), 0.3f);
             if (!venueFloor) venueFloor = NewMat("VenueFloor", new Color(0.16f, 0.17f, 0.2f), 0.15f);
             if (!venueWall) venueWall = NewMat("VenueWall", new Color(0.1f, 0.11f, 0.14f), 0.05f);
+            if (!accentYellow) accentYellow = NewMat("AccentYellow", new Color(0.98f, 0.76f, 0.1f), 0.35f);
             if (!pollen) pollen = NewMat("Pollen", new Color(1f, 0.85f, 0.05f), 0.35f);
             if (!nectarRed) nectarRed = NewMat("NectarRed", new Color(0.9f, 0.08f, 0.1f), 0.35f);
             if (!nectarBlue) nectarBlue = NewMat("NectarBlue", new Color(0.08f, 0.3f, 0.95f), 0.35f);

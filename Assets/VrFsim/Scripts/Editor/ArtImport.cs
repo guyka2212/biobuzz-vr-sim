@@ -33,6 +33,9 @@ namespace VrFsim.EditorTools
             mi.importNormals = ModelImporterNormals.Import;
             mi.importTangents = ModelImporterTangents.None;
             mi.addCollider = false;
+            // Static field parts are lightmapped; robot parts and elements are not.
+            string file = System.IO.Path.GetFileNameWithoutExtension(assetPath);
+            mi.generateSecondaryUV = !file.StartsWith("Robot") && file != "Element" && !file.StartsWith("HiveTray");
             mi.materialImportMode = ModelImporterMaterialImportMode.ImportStandard;
             mi.materialLocation = ModelImporterMaterialLocation.InPrefab;
             mi.materialSearch = ModelImporterMaterialSearch.Everywhere;

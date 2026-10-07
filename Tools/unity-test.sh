@@ -19,7 +19,7 @@ import sys, xml.etree.ElementTree as ET
 r = ET.parse(sys.argv[1]).getroot()
 print(f"UNITY TESTS: {r.get('result')} - total {r.get('total')}, passed {r.get('passed')}, failed {r.get('failed')}")
 for tc in r.iter('test-case'):
-    if tc.get('result') != 'Passed':
+    if tc.get('result') == 'Failed':
         msg = tc.find('.//message')
         print(' FAIL', tc.get('fullname'), '-', (msg.text or '').strip()[:300] if msg is not None else '')
 PY

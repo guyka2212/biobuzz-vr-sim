@@ -24,6 +24,7 @@ MonoBehaviour:
   flowerRing: {fileID: 2100000, guid: 51abdc6531b572044874ecf5f174695f, type: 2}
   venueFloor: {fileID: 2100000, guid: a27298d3521c9e6438c7bc76fbf6d73f, type: 2}
   venueWall: {fileID: 2100000, guid: 75bb0ed8101e1fd47969f05f1a9f6379, type: 2}
+  accentYellow: {fileID: 2100000, guid: 9bdc17584774fa344b7428fbc2c4bfd1, type: 2}
   pollen: {fileID: 2100000, guid: 72e62f02b9005f64b8627ed877466a69, type: 2}
   nectarRed: {fileID: 2100000, guid: ce860fc3724a7f547a1582a5274b460f, type: 2}
   nectarBlue: {fileID: 2100000, guid: ca886f62bb07d9949a35375269ce579d, type: 2}

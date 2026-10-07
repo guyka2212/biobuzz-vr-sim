@@ -48,6 +48,13 @@ namespace VrFsim
                     case Venue.Night: sun.intensity = 0.55f; sun.color = new Color(0.8f, 0.85f, 1f); break;
                 }
             }
+            var robotShadows = g.dynamicShadows == DynamicShadows.Off ? ShadowCastingMode.Off : ShadowCastingMode.On;
+            var elementShadows = g.dynamicShadows == DynamicShadows.RobotsAndElements ? ShadowCastingMode.On : ShadowCastingMode.Off;
+            foreach (var r in Game.SimWorld.Robots)
+                foreach (var mr in r.GetComponentsInChildren<MeshRenderer>()) mr.shadowCastingMode = robotShadows;
+            foreach (var e in Game.GameElement.All)
+                if (e.TryGetComponent<MeshRenderer>(out var er)) er.shadowCastingMode = elementShadows;
+
             RenderSettings.ambientMode = AmbientMode.Flat;
             RenderSettings.ambientLight = g.venue == Venue.Night ? new Color(0.12f, 0.13f, 0.18f)
                 : g.venue == Venue.Gym ? new Color(0.42f, 0.43f, 0.45f) : new Color(0.33f, 0.33f, 0.36f);

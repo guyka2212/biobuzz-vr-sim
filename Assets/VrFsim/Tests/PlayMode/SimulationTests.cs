@@ -184,7 +184,7 @@ namespace VrFsim.Tests
             var r = MatchController.Instance.Player;
             var hive = SimWorld.Field.redHive;
             // Heading +x puts the left edge (the dumper) toward +y, i.e. at the HIVE.
-            r.PlaceAt(Units.Field(FieldSpec.HivePivotXRed, -75f, 0.05f), 90f);
+            r.PlaceAt(Units.Field(FieldSpec.HivePivotXRed, -60f, 0.05f), 90f);
             var src = new ScriptSource();
             r.Source = src;
             yield return Seconds(0.3f);
@@ -215,6 +215,36 @@ namespace VrFsim.Tests
             yield return Seconds(2.5f);
             Debug.Log($"FLOWER F1 scoring {before} -> {f.Scoring.Count}");
             Assert.AreEqual(before + 1, f.Scoring.Count);
+        }
+
+        [UnityTest]
+        public IEnumerator StartPoses_AreLegalUnderG304()
+        {
+            yield return Boot(new SimSettings());
+            foreach (var cfg in RobotPresets.All())
+            {
+                cfg.Validate();
+                foreach (Alliance a in new[] { Alliance.Red, Alliance.Blue })
+                    foreach (StartAnchor anchor in new[] { StartAnchor.WallNearAudience, StartAnchor.WallCenter, StartAnchor.WallBehindLoadingZone, StartAnchor.AudienceWall })
+                    {
+                        var (pos, yaw) = MatchController.StartPose(cfg, a, anchor, new CustomPose());
+                        var f = new Vector3(Mathf.Sin(yaw * Mathf.Deg2Rad), 0f, Mathf.Cos(yaw * Mathf.Deg2Rad));
+                        var rgt = new Vector3(f.z, 0f, -f.x);
+                        var fp = new FieldObb
+                        {
+                            center = Units.ToFieldPlane(pos), axisX = new Vector2(rgt.x, rgt.z), axisY = new Vector2(f.x, f.z),
+                            halfX = cfg.widthIn * 0.5f, halfY = cfg.lengthIn * 0.5f,
+                        };
+                        string where = $"{cfg.name} {a} {anchor}";
+                        Assert.IsTrue(fp.FullyOnSide(a), where + ": G304.A own side");
+                        Assert.IsTrue(fp.TouchesWall(0.6f), where + ": G304.C touching the wall");
+                        for (int i = 0; i < 4; i++)
+                            Assert.LessOrEqual(Mathf.Abs(fp.Corner(i).x), FieldSpec.WallInner + 0.01f, where + ": inside the field");
+                        Assert.IsFalse(fp.Overlaps(FieldSpec.LoadingZoneRed.For(a)), where + ": G304.E not in LOADING ZONE");
+                        foreach (var fl in SimWorld.Field.flowers)
+                            Assert.Greater((fp.center - fl.centerIn).magnitude, Mathf.Max(fp.halfX, fp.halfY) + 2.5f, where + ": G304.D clear of FLOWER");
+                    }
+            }
         }
 
         [UnityTest]

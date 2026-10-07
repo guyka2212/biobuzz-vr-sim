@@ -40,6 +40,9 @@ namespace VrFsim.EditorTools
             var field = FieldBuilder.Build(null, lib, FieldArt.Load());
             field.root.gameObject.AddComponent<FieldRoot>().Capture(field);
             MarkStatic(field.staticRoot.gameObject);
+            // Clear polycarbonate panels do not cast shadows.
+            foreach (var r in field.staticRoot.GetComponentsInChildren<MeshRenderer>())
+                if (r.sharedMaterial == lib.wall) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
             BuildLightProbes();
             new GameObject("VrFsim").AddComponent<GameBootstrap>();
@@ -99,7 +102,9 @@ namespace VrFsim.EditorTools
             settings.bakedGI = true;
             settings.realtimeGI = false;
             settings.lightmapper = LightingSettings.Lightmapper.ProgressiveGPU;
-            settings.mixedBakeMode = MixedLightingMode.IndirectOnly;
+            // Subtractive: the static field gets baked direct light and shadows; only moving robots and
+            // elements are lit and shadowed in realtime. Cheapest mode, and no shadow acne on the field.
+            settings.mixedBakeMode = MixedLightingMode.Subtractive;
             settings.lightmapResolution = 6f;
             settings.lightmapPadding = 2;
             settings.lightmapMaxSize = 1024;
@@ -114,6 +119,7 @@ namespace VrFsim.EditorTools
             Lightmapping.lightingSettings = settings;
             RenderSettings.ambientMode = AmbientMode.Flat;
             RenderSettings.ambientLight = new Color(0.33f, 0.33f, 0.36f);
+            RenderSettings.subtractiveShadowColor = new Color(0.42f, 0.45f, 0.52f);
             RenderSettings.skybox = null;
         }
 

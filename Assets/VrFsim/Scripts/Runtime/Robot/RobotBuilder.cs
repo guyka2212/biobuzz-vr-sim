@@ -156,7 +156,13 @@ namespace VrFsim.Robot
                 if (c.drivetrain == DrivetrainType.XDrive) axle.localRotation = Quaternion.Euler(0f, sx * sz * 45f, 0f);
                 var tire = Part(axle, "Tire", Vector3.zero, new Vector3(d, 1.5f, d), lib.robotWheel, mesh ? mesh : Cylinder);
                 if (!mesh) tire.localRotation = Quaternion.Euler(0f, 0f, 90f); // cylinder axis Y -> X
-                else tire.localScale = new Vector3(Units.In(1.5f), Units.In(d), Units.In(d));
+                else
+                {
+                    // Art wheels keep true proportions. Mecanum wheels come in two hands; mirroring
+                    // alternate corners gives the X roller pattern seen from above.
+                    float hand = c.drivetrain == DrivetrainType.Mecanum || c.drivetrain == DrivetrainType.Butterfly ? sx * sz : 1f;
+                    tire.localScale = new Vector3(hand, 1f, 1f) * Units.In(d);
+                }
                 rig.wheels.Add(axle);
             }
             if (c.drivetrain == DrivetrainType.Tank)
@@ -245,7 +251,7 @@ namespace VrFsim.Robot
                 bucket.localRotation = Quaternion.LookRotation(o3);
                 float span = Mathf.Abs(dir.x) > 0.5f ? c.lengthIn * 0.8f : c.widthIn * 0.8f;
                 Part(bucket, "Bucket", new Vector3(0f, 0f, 0f), new Vector3(span, 4f, 5f), accent, art ? art.dumper : null);
-                Part(bucket, "Hood", new Vector3(0f, 2.3f, 1.5f), new Vector3(span, 0.4f, 3f), lib.robotMetal);
+                if (!(art && art.dumper)) Part(bucket, "Hood", new Vector3(0f, 2.3f, 1.5f), new Vector3(span, 0.4f, 3f), lib.robotMetal);
                 var exit = Child(bucket, "Exit");
                 exit.localPosition = new Vector3(0f, 3f, 3f) * Units.MetersPerInch;
                 rig.dumperExit = exit;
@@ -264,9 +270,13 @@ namespace VrFsim.Robot
                 Part(vis, "TurretRing" + i, new Vector3(pos.x, ringY, pos.y), new Vector3(2f * r, 0.4f, 2f * r), lib.robotMetal, Cylinder);
                 var pivot = Child(vis, "Turret" + i);
                 pivot.localPosition = new Vector3(pos.x, ringY + 0.5f, pos.y) * Units.MetersPerInch;
-                var body = Part(pivot, "Launcher", new Vector3(0f, 2f, 0f), new Vector3(r * 1.3f, 4f, r * 1.6f), accent, art ? art.turret : null);
-                Part(pivot, "Flywheel", new Vector3(0f, 3.4f, r * 0.6f), new Vector3(2.6f, 0.8f, 2.6f), lib.robotDark, Cylinder);
-                Part(pivot, "Hood", new Vector3(0f, 4.1f, 0f), new Vector3(r * 1.1f, 0.3f, r * 1.8f), lib.robotMetal);
+                bool turretArt = art && art.turret;
+                var body = Part(pivot, "Launcher", new Vector3(0f, 2f, 0f), new Vector3(r * 1.3f, 4f, r * 1.6f), accent, turretArt ? art.turret : null);
+                if (!turretArt)
+                {
+                    Part(pivot, "Flywheel", new Vector3(0f, 3.4f, r * 0.6f), new Vector3(2.6f, 0.8f, 2.6f), lib.robotDark, Cylinder);
+                    Part(pivot, "Hood", new Vector3(0f, 4.1f, 0f), new Vector3(r * 1.1f, 0.3f, r * 1.8f), lib.robotMetal);
+                }
                 var exit = Child(pivot, "Exit");
                 exit.localPosition = new Vector3(0f, 4.6f, r * 0.9f) * Units.MetersPerInch;
                 rig.turrets[i] = pivot;
@@ -349,7 +359,7 @@ namespace VrFsim.Robot
             go.GetComponent<MeshFilter>().sharedMesh = mesh ? mesh : Cube;
             var r = go.GetComponent<MeshRenderer>();
             r.sharedMaterial = mat;
-            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
             return go.transform;
         }
     }
