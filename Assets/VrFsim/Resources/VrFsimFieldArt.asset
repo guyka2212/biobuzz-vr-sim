@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac21597195839404c89887b1f00817cb, type: 3}
+  m_Name: VrFsimFieldArt
+  m_EditorClassIdentifier: VrFsim.Runtime::VrFsim.Game.FieldArt
+  tiles: {fileID: 0}
+  perimeter: {fileID: 0}
+  venue: {fileID: 0}
+  hiveFrame: {fileID: 0}
+  hiveTrayRed: {fileID: 0}
+  hiveTrayBlue: {fileID: 0}
+  flower: {fileID: 0}
+  pollenMesh: {fileID: 0}
+  nectarMesh: {fileID: 0}

@@ -382,6 +382,7 @@ namespace VrFsim.Match
 
         void FixedUpdate()
         {
+            if (Phase == MatchPhase.PreMatch) { UpdateLiveScore(); return; }
             if (!IsLive && Phase != MatchPhase.Settling) return;
             if (Phase == MatchPhase.Auto) penalties.TickAuto(robots);
             if (Phase == MatchPhase.Teleop || Phase == MatchPhase.FreeDrive) penalties.TickPins(robots, Time.fixedDeltaTime);

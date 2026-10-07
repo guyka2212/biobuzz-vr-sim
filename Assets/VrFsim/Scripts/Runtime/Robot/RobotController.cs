@@ -46,7 +46,7 @@ namespace VrFsim.Robot
         float nextIntake, nextShot, placeBusyUntil, dumpUntil;
         float moduleAngle;
         bool hasAimSolution;
-        const float IntakeInterval = 0.12f, TurretInterval = 0.22f, DumperInterval = 0.07f, PlaceTime = 0.5f;
+        const float IntakeInterval = 0.12f, TurretInterval = 0.22f, DumperInterval = 0.12f, PlaceTime = 0.5f;
 
         public void Init(RobotConfig config, Alliance alliance, RobotRig rig, AssistSettings assists, bool isPlayer)
         {
@@ -81,6 +81,23 @@ namespace VrFsim.Robot
                 return true;
             }
             return false;
+        }
+
+        Collider[] ownColliders;
+
+        /// <summary>An element leaving the robot must not collide with the robot that just released it.</summary>
+        void Detach(GameElement e, float seconds = 0.35f)
+        {
+            ownColliders ??= GetComponentsInChildren<Collider>();
+            foreach (var c in ownColliders) if (c) Physics.IgnoreCollision(e.Collider, c, true);
+            StartCoroutine(Reattach(e, seconds));
+        }
+
+        System.Collections.IEnumerator Reattach(GameElement e, float seconds)
+        {
+            yield return new WaitForSeconds(seconds);
+            if (!e) yield break;
+            foreach (var c in ownColliders) if (c) Physics.IgnoreCollision(e.Collider, c, false);
         }
 
         GameElement Take(Func<GameElement, bool> pick)
@@ -301,7 +318,7 @@ namespace VrFsim.Robot
             if (!e) return;
             var m = Rig.mouths[0];
             Vector3 pos = transform.TransformPoint(m.center + m.outward * Units.In(2f));
-            e.Release(pos, transform.TransformDirection(m.outward) * 1.2f + Rig.body.linearVelocity, false);
+            e.Release(pos, transform.TransformDirection(m.outward) * 1.2f + Rig.body.linearVelocity, false); Detach(e);
             nextIntake = Time.time + IntakeInterval * 2f;
         }
 
@@ -369,10 +386,10 @@ namespace VrFsim.Robot
                 target = from + heading * flat.magnitude;
                 target.y = HiveTarget().y;
             }
-            Ballistics.ApexShot(from, target, Mathf.Max(target.y, from.y) + 0.3f, out var v);
+            Ballistics.ApexShot(from, target, Mathf.Max(target.y, from.y) + 0.25f, out var v);
             if (AimAssist) v -= Rig.body.linearVelocity; // shoot-on-the-move compensation
             v = Vector3.ClampMagnitude(Ballistics.Disperse(v, 0.02f, 0.8f), Ballistics.MaxLaunchSpeed);
-            e.Release(from, v + Rig.body.linearVelocity, true);
+            e.Release(from, v + Rig.body.linearVelocity, true); Detach(e);
             nextShot = Time.time + TurretInterval;
             Launched?.Invoke(this, e);
         }
@@ -388,8 +405,8 @@ namespace VrFsim.Robot
             float elev = Config.hoodDeg * Mathf.Deg2Rad;
             Ballistics.FixedAngleSpeed(Mathf.Max(dist, 0.2f), to.y, elev, out float speed);
             Vector3 v = (dir * Mathf.Cos(elev) + Vector3.up * Mathf.Sin(elev)) * speed;
-            v = Ballistics.Disperse(v, 0.03f, 1.2f);
-            e.Release(from + Vector3.up * Units.In(1f), v + Rig.body.linearVelocity, true);
+            v = Ballistics.Disperse(v, 0.02f, 1f);
+            e.Release(from + Vector3.up * Units.In(1f), v + Rig.body.linearVelocity, true); Detach(e);
             nextShot = Time.time + DumperInterval;
             Launched?.Invoke(this, e);
         }
@@ -403,7 +420,7 @@ namespace VrFsim.Robot
                 : Rig.dumperExit ? Rig.dumperExit.position : transform.position + Vector3.up * Units.In(Config.heightIn);
             Vector3 target = SimWorld.AllianceToWorld(Alliance, Config.passTargetIn, e.RadiusIn);
             Ballistics.ApexShot(from, target, Mathf.Max(from.y, target.y) + 0.7f, out var v);
-            e.Release(from, Vector3.ClampMagnitude(v, Ballistics.MaxLaunchSpeed), true);
+            e.Release(from, Vector3.ClampMagnitude(v, Ballistics.MaxLaunchSpeed), true); Detach(e);
             nextShot = Time.time + TurretInterval;
             Launched?.Invoke(this, e);
         }
@@ -435,7 +452,7 @@ namespace VrFsim.Robot
                         p = Units.Field(f.centerIn.x, f.centerIn.y, FieldSpec.FlowerTopRingTop + e.RadiusIn + 0.3f);
                         break;
                     }
-            e.Release(p, Vector3.zero, false);
+            e.Release(p, Vector3.zero, false); Detach(e);
             Placed?.Invoke(this, e);
         }
 

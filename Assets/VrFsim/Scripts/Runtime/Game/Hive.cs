@@ -53,19 +53,15 @@ namespace VrFsim.Game
             if (body) body.rotation = transform.rotation;
         }
 
-        /// <summary>World position of the centre of the up-CELL's open mouth (a launch target).</summary>
-        public Vector3 UpCellMouth()
-        {
-            float v = UpSign * (FieldSpec.CellOuterV - 1.5f);
-            float w = (FieldSpec.CellFloorW + FieldSpec.CellEaveW) * 0.5f + 1f;
-            return transform.TransformPoint(new Vector3(0f, Units.In(w), Units.In(v)));
-        }
-
-        /// <summary>A point inside the up-CELL that launched elements should aim to pass through.</summary>
+        /// <summary>
+        /// The point a launch should pass through: just inside the middle of the up-CELL's open mouth
+        /// (about 58 in above the tiles when the cell is up). Aiming here keeps the arc clear of
+        /// both the mouth's bottom lip and its roof edge.
+        /// </summary>
         public Vector3 UpCellAimPoint()
         {
-            float v = UpSign * ((FieldSpec.CellInnerV + FieldSpec.CellOuterV) * 0.5f + 1.5f);
-            float w = FieldSpec.CellFloorW + 4.5f;
+            float v = UpSign * (FieldSpec.CellOuterV - 2.5f);
+            const float w = 5.5f;
             return transform.TransformPoint(new Vector3(0f, Units.In(w), Units.In(v)));
         }
 

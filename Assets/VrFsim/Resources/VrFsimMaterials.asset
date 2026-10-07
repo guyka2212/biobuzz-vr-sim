@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b61859cdad0c6544a9dc4814fe81f2e, type: 3}
+  m_Name: VrFsimMaterials
+  m_EditorClassIdentifier: VrFsim.Runtime::VrFsim.MaterialLibrary
+  tile: {fileID: 2100000, guid: 2a07d335888eb1445bcc2b50bda06cb9, type: 2}
+  wall: {fileID: 2100000, guid: a1ba69731ce6d5c498f89f598f751d89, type: 2}
+  wallFrame: {fileID: 2100000, guid: 9cc250aca71dd2b4eb4a43bbdae5f945, type: 2}
+  tapeRed: {fileID: 2100000, guid: d461a0566ec9a8448ab1f95b700a70bf, type: 2}
+  tapeBlue: {fileID: 2100000, guid: 1af147cd729679d45b6c98e614d60a2b, type: 2}
+  hiveFrame: {fileID: 2100000, guid: 76416b3a6163e924ca6cbf8c3ce25458, type: 2}
+  hiveRed: {fileID: 2100000, guid: 964c98a7a003e9747bb27423d9f35639, type: 2}
+  hiveBlue: {fileID: 2100000, guid: f44f0d27264903c4188fecd90eab02a5, type: 2}
+  flower: {fileID: 2100000, guid: 23f5ed01ea9294e4c9a62e7e062616b2, type: 2}
+  flowerRing: {fileID: 2100000, guid: 51abdc6531b572044874ecf5f174695f, type: 2}
+  venueFloor: {fileID: 2100000, guid: a27298d3521c9e6438c7bc76fbf6d73f, type: 2}
+  venueWall: {fileID: 2100000, guid: 75bb0ed8101e1fd47969f05f1a9f6379, type: 2}
+  pollen: {fileID: 2100000, guid: 72e62f02b9005f64b8627ed877466a69, type: 2}
+  nectarRed: {fileID: 2100000, guid: ce860fc3724a7f547a1582a5274b460f, type: 2}
+  nectarBlue: {fileID: 2100000, guid: ca886f62bb07d9949a35375269ce579d, type: 2}
+  robotMetal: {fileID: 2100000, guid: 8ce3e861188e1744d8398b7d036385a1, type: 2}
+  robotDark: {fileID: 2100000, guid: a6657b9739fe23e468759b9630e25230, type: 2}
+  robotWheel: {fileID: 2100000, guid: 3badd76777c4ea34d8fd101cddb8d0db, type: 2}
+  bumperRed: {fileID: 2100000, guid: 7a639e3d6ebb67446856db954ca420a2, type: 2}
+  bumperBlue: {fileID: 2100000, guid: 42cb58f6a62f5684e984809d792267af, type: 2}
+  blobShadow: {fileID: 0}
+  tilePhysics: {fileID: 13400000, guid: 77449ed8353533f46b7e7c9d932aec36, type: 2}
+  wallPhysics: {fileID: 13400000, guid: e963f68d7a00ead4a8b0adfdd6605fbe, type: 2}
+  ballPhysics: {fileID: 13400000, guid: 1436293ba8babcb4e9722cf3f43d2b19, type: 2}
+  robotPhysics: {fileID: 13400000, guid: b0c83709de6cecc4ca58635028ba8e4e, type: 2}
+  structurePhysics: {fileID: 13400000, guid: 4b34e497d8c72e849bd0440d82260988, type: 2}

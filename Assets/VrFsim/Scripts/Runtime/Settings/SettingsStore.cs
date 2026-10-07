@@ -14,6 +14,15 @@ namespace VrFsim.Settings
     {
         const string FileName = "settings.json";
         static SimSettings current;
+        static bool persist = true;
+
+        /// <summary>Use in-memory settings that are never written to disk (automated tests).</summary>
+        public static void UseTransient(SimSettings s)
+        {
+            persist = false;
+            current = s ?? new SimSettings();
+            current.Validate();
+        }
 
         /// <summary>Raised after any change is committed with <see cref="Commit"/>.</summary>
         public static event Action<SimSettings> Changed;
@@ -32,6 +41,7 @@ namespace VrFsim.Settings
         public static SimSettings Load()
         {
             var s = new SimSettings();
+            if (!persist) return s;
             try
             {
                 if (File.Exists(FilePath))
@@ -64,6 +74,7 @@ namespace VrFsim.Settings
 
         static void Save(SimSettings s)
         {
+            if (!persist) return;
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(FilePath));

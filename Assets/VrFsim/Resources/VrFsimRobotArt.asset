@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d63ae4c715c778541ab2b317bf5c29ac, type: 3}
+  m_Name: VrFsimRobotArt
+  m_EditorClassIdentifier: VrFsim.Runtime::VrFsim.Robot.RobotArt
+  chassis: {fileID: 0}
+  mecanumWheel: {fileID: 0}
+  tractionWheel: {fileID: 0}
+  omniWheel: {fileID: 0}
+  swerveModule: {fileID: 0}
+  turret: {fileID: 0}
+  dumper: {fileID: 0}
+  boxTube: {fileID: 0}
+  intakeRoller: {fileID: 0}

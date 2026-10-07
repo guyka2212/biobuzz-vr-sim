@@ -79,6 +79,7 @@ namespace VrFsim.Game
             transform.localScale = Vector3.one * RadiusM * 2f;
             Collider.enabled = true;
             Body.isKinematic = false;
+            Body.position = worldPos;
             Body.linearVelocity = velocity;
             Body.angularVelocity = Random.insideUnitSphere * 5f;
             State = launched ? ElementState.Launched : ElementState.Free;
@@ -95,10 +96,15 @@ namespace VrFsim.Game
         public void PlaceAt(Vector3 worldPos)
         {
             transform.SetParent(null, true);
-            transform.SetPositionAndRotation(worldPos, Random.rotation);
+            var rot = Random.rotation;
+            transform.SetPositionAndRotation(worldPos, rot);
             transform.localScale = Vector3.one * RadiusM * 2f;
             Collider.enabled = true;
             Body.isKinematic = false;
+            // With interpolation on, the rigidbody pose is authoritative; set it too or the move is undone.
+            Body.position = worldPos;
+            Body.rotation = rot;
+            Body.WakeUp();
             Body.linearVelocity = Vector3.zero;
             Body.angularVelocity = Vector3.zero;
             State = ElementState.Free;

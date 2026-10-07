@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-# Run the EditMode test suite headless. The editor must not already have the project open.
+# Run a test suite headless: Tools/unity-test.sh [EditMode|PlayMode]
+# The editor must not already have the project open.
 set -u
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 UNITY_EXE="${UNITY_EXE:-/c/Program Files/Unity/Hub/Editor/6000.5.8f1/Editor/Unity.exe}"
-RESULTS="$ROOT/Logs/test-results.xml"
+PLATFORM="${1:-EditMode}"
+RESULTS="$ROOT/Logs/test-results-$PLATFORM.xml"
 rm -f "$RESULTS"
-"$UNITY_EXE" -batchmode -nographics -projectPath "$ROOT" -runTests -testPlatform EditMode \
+"$UNITY_EXE" -batchmode -nographics -projectPath "$ROOT" -runTests -testPlatform "$PLATFORM" \
   -testResults "$RESULTS" -logFile "$ROOT/Logs/test.log"
 code=$?
 if [ ! -f "$RESULTS" ]; then
