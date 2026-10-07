@@ -181,11 +181,41 @@ Docs/               verified game facts and the dsim settings inventory
 ## Performance
 
 The game is built for a stable 90 fps on a mid-range VR PC:
-- URP with single-pass instanced stereo, baked static lighting, and no post-processing
-- one realtime shadow cascade for moving objects only
-- a handful of shared materials (SRP batcher) and low-polygon models
+- URP with single-pass instanced stereo, baked static lighting (Subtractive mode), and no post-processing
+- one realtime shadow cascade, for moving robots and elements only
+- a handful of shared materials (SRP batcher) and low-polygon models (about 37k triangles in a busy scene)
 - box and capsule colliders only, no mesh colliders
 - procedurally generated audio, so the build carries no sound files
+- build size about 77 MB, almost all of which is the Unity runtime
+
+Measure it on your own PC with the built-in benchmark. It runs free drive with three practice
+robots and a busy scripted drive for 30 s, then writes `benchmark.txt` next to the executable:
+
+```bash
+Builds/VrFsim/VrFsim.exe -benchmark
+```
+
+Reference result: GTX 1650 + i5-10400, desktop mode at 2560×1241 with the frame rate uncapped.
+Average 1.22 ms, 99th percentile 1.95 ms, against the 11.1 ms budget for 90 fps. A headset
+roughly doubles the pixel count and adds stereo overhead, so this leaves a large margin. With a
+headset connected, the benchmark measures the real VR frame time instead.
+
+## 3D models
+
+All models are original and were made in Blender from published dimensions. The Python
+scripts in `Tools/blender/` rebuild every model and export it to `Assets/VrFsim/Art/Models`:
+
+| Script | Models |
+|---|---|
+| `field_base.py` | perimeter, tile floor and its interlocking-tile texture |
+| `hive_frame.py`, `hive_tray.py` | HIVE frame, red and blue HIVE trays |
+| `flower.py` | FLOWER |
+| `elements.py` | POLLEN / NECTAR mesh and the perforation texture |
+| `robot_chassis.py`, `robot_parts.py` | chassis, mecanum/traction/omni wheels, swerve module, turret, dumper, Box Tube, intake roller |
+
+Run a script in Blender (Scripting tab, or through the Blender MCP bridge), then in Unity run
+**VrFsim → Setup → Assign Art**, **Build Scene** and **Bake Lighting**. Models only supply
+visuals; every collider comes from `FieldSpec`, so physics never depends on the art.
 
 ## Credits
 
