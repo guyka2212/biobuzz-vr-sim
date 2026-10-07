@@ -100,12 +100,20 @@ namespace VrFsim.Robot
             var chassisMat = Tinted(lib.robotDark, c.ChassisColor);
             var accentMat = Tinted(lib.robotMetal, c.AccentColor);
 
-            // Chassis plate and side rails.
-            Part(vis, "ChassisPlate", new Vector3(0f, 1.6f, 0f), new Vector3(W - 1f, 0.25f, L - 1f), chassisMat, art ? art.chassis : null);
-            Part(vis, "RailL", new Vector3(-W * 0.5f + 0.75f, 2.2f, 0f), new Vector3(1.5f, 3.2f, L), chassisMat);
-            Part(vis, "RailR", new Vector3(W * 0.5f - 0.75f, 2.2f, 0f), new Vector3(1.5f, 3.2f, L), chassisMat);
-            Part(vis, "RailF", new Vector3(0f, 3.4f, L * 0.5f - 0.5f), new Vector3(W - 3f, 1f, 1f), chassisMat);
-            Part(vis, "RailB", new Vector3(0f, 3.4f, -L * 0.5f + 0.5f), new Vector3(W - 3f, 1f, 1f), chassisMat);
+            if (art && art.chassis)
+            {
+                // Blender chassis: slot 0 plate (team colour), 1 aluminium channel, 2 electronics.
+                var ch = Part(vis, "Chassis", new Vector3(0f, ChassisHeightIn * 0.5f, 0f), new Vector3(W, ChassisHeightIn, L), chassisMat, art.chassis);
+                ch.GetComponent<MeshRenderer>().sharedMaterials = new[] { chassisMat, lib.robotMetal, lib.robotWheel };
+            }
+            else
+            {
+                Part(vis, "ChassisPlate", new Vector3(0f, 1.6f, 0f), new Vector3(W - 1f, 0.25f, L - 1f), chassisMat);
+                Part(vis, "RailL", new Vector3(-W * 0.5f + 0.75f, 2.2f, 0f), new Vector3(1.5f, 3.2f, L), chassisMat);
+                Part(vis, "RailR", new Vector3(W * 0.5f - 0.75f, 2.2f, 0f), new Vector3(1.5f, 3.2f, L), chassisMat);
+                Part(vis, "RailF", new Vector3(0f, 3.4f, L * 0.5f - 0.5f), new Vector3(W - 3f, 1f, 1f), chassisMat);
+                Part(vis, "RailB", new Vector3(0f, 3.4f, -L * 0.5f + 0.5f), new Vector3(W - 3f, 1f, 1f), chassisMat);
+            }
 
             BuildWheels(rig, vis, c, lib, art);
             BuildIntake(rig, vis, c, lib, art, accentMat);

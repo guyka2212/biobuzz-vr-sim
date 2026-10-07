@@ -18,6 +18,7 @@ namespace VrFsim
     {
         void Awake()
         {
+            if (Benchmark.Requested) SettingsStore.UseTransient(Benchmark.Settings());
             Time.fixedDeltaTime = 1f / 90f;
             Physics.defaultSolverIterations = 8;
             Physics.defaultSolverVelocityIterations = 2;
@@ -34,6 +35,7 @@ namespace VrFsim
             Make<GraphicsApplier>("Graphics");
             Make<Hud>("Displays");
             Make<SettingsMenu>("Menu");
+            if (Benchmark.Requested) Make<Benchmark>("Benchmark");
         }
 
         T Make<T>(string name) where T : Component

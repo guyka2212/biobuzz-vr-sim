@@ -12,7 +12,7 @@ namespace VrFsim.Robot
     {
         public const string ResourceName = "VrFsimRobotArt";
 
-        [Tooltip("Unit cube footprint, top face at y = 0.5.")] public Mesh chassis;
+        [Tooltip("Unit cube chassis; submeshes: 0 plate (team colour), 1 metal, 2 electronics.")] public Mesh chassis;
         [Tooltip("Unit diameter, unit width, axle along X.")] public Mesh mecanumWheel;
         public Mesh tractionWheel;
         public Mesh omniWheel;

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d63ae4c715c778541ab2b317bf5c29ac, type: 3}
   m_Name: VrFsimRobotArt
   m_EditorClassIdentifier: VrFsim.Runtime::VrFsim.Robot.RobotArt
-  chassis: {fileID: 0}
+  chassis: {fileID: 3998443429825257798, guid: 35ccf0d2a51ce7147a5bec5282c0b39c, type: 3}
   mecanumWheel: {fileID: -4611600293250547242, guid: 03eb7274e0c10044eb6a97e7c72a124e, type: 3}
   tractionWheel: {fileID: -4758706856370216109, guid: 1688fea742eec5742ab18790772c7838, type: 3}
   omniWheel: {fileID: -7041309484264714707, guid: 1dbef9592a928b443a945e070f968aa9, type: 3}
