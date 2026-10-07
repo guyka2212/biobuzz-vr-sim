@@ -13,6 +13,11 @@ namespace VrFsim
 
         void Start()
         {
+#if UNITY_EDITOR
+            // Work on a copy in the editor so play sessions never modify the project's URP asset.
+            if (GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset src)
+                QualitySettings.renderPipeline = Instantiate(src);
+#endif
             foreach (var l in FindObjectsByType<Light>(FindObjectsSortMode.None))
                 if (l.type == LightType.Directional) { sun = l; break; }
             SettingsStore.Changed += Apply;

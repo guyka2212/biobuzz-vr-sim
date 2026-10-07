@@ -54,6 +54,7 @@ namespace VrFsim.EditorTools
         {
             ConfigurePlayer();
             ConfigureXR();
+            ConfigureRendering();
             CleanConfigObjects();
             EnsureMainScene();
             AssetDatabase.SaveAssets();
@@ -67,9 +68,11 @@ namespace VrFsim.EditorTools
             PlayerSettings.colorSpace = ColorSpace.Linear;
             PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.StandaloneWindows64, false);
             PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { GraphicsDeviceType.Direct3D11 });
-            PlayerSettings.SetScriptingBackend(NamedBuildTarget.Standalone, ScriptingImplementation.IL2CPP);
+            // Mono: IL2CPP needs the separate "Windows Build Support (IL2CPP)" editor module.
+            PlayerSettings.SetScriptingBackend(NamedBuildTarget.Standalone, ScriptingImplementation.Mono2x);
             PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.Standalone, ManagedStrippingLevel.Medium);
             PlayerSettings.stripEngineCode = true;
+            PlayerSettings.SplashScreen.show = false;
             PlayerSettings.runInBackground = true;
             PlayerSettings.visibleInBackground = true;
             PlayerSettings.fullScreenMode = FullScreenMode.Windowed;
@@ -122,6 +125,52 @@ namespace VrFsim.EditorTools
                 EditorUtility.SetDirty(feature);
             }
             EditorUtility.SetDirty(openXR);
+        }
+
+        const string VrPipelinePath = "Assets/Settings/Rendering/URP_Pipeline_VR.asset";
+
+        /// <summary>
+        /// One URP asset for every quality level, tuned for a stable 90 fps in a headset: no HDR, no
+        /// depth/opaque copies, no additional lights, one 1024 px shadow cascade, SRP batcher on.
+        /// Static lighting is baked; only robots and elements cast realtime shadows.
+        /// </summary>
+        static void ConfigureRendering()
+        {
+            var urp = AssetDatabase.LoadAssetAtPath<RenderPipelineAsset>(VrPipelinePath);
+            if (!urp) { Debug.LogWarning("[VrFsim] VR URP asset missing"); return; }
+            var so = new SerializedObject(urp);
+            void Set(string prop, int v) { var p = so.FindProperty(prop); if (p != null) p.intValue = v; }
+            void SetF(string prop, float v) { var p = so.FindProperty(prop); if (p != null) p.floatValue = v; }
+            void SetB(string prop, bool v) { var p = so.FindProperty(prop); if (p != null) p.boolValue = v; }
+            SetB("m_SupportsHDR", false);
+            SetB("m_RequireDepthTexture", false);
+            SetB("m_RequireOpaqueTexture", false);
+            Set("m_MSAA", 4);
+            SetF("m_RenderScale", 1f);
+            Set("m_AdditionalLightsRenderingMode", 0);
+            Set("m_MainLightShadowmapResolution", 1024);
+            SetF("m_ShadowDistance", 6f);
+            Set("m_ShadowCascadeCount", 1);
+            SetB("m_SoftShadowsSupported", false);
+            SetB("m_UseSRPBatcher", true);
+            SetB("m_UseAdaptivePerformance", false);
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            GraphicsSettings.defaultRenderPipeline = urp;
+            var names = QualitySettings.names;
+            int current = QualitySettings.GetQualityLevel();
+            for (int i = 0; i < names.Length; i++)
+            {
+                QualitySettings.SetQualityLevel(i, false);
+                QualitySettings.renderPipeline = urp;
+                QualitySettings.vSyncCount = 0;
+                QualitySettings.antiAliasing = 0;          // MSAA comes from the URP asset
+                QualitySettings.anisotropicFiltering = AnisotropicFiltering.Enable;
+                QualitySettings.pixelLightCount = 1;
+                QualitySettings.lodBias = 1f;
+            }
+            QualitySettings.SetQualityLevel(current, false);
+            EditorUtility.SetDirty(urp);
         }
 
         static void CleanConfigObjects()
