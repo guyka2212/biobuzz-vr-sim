@@ -70,9 +70,9 @@ view toggle, camera cycle, eye height up/down.
 |---|---|
 | mode: full match / free drive | Carry |
 | alliance: red / blue | Carry |
-| start position: preset anchors (close/far) + custom pose, saved poses | Carry |
+| start position: preset anchors (close/far) + custom pose, saved poses | Carry: 4 G304-legal anchors, custom pose, up to 8 saved poses |
 | physics: 2D / 3D | Adapt: 3D only (PhysX) |
-| practice robots: per seat none / dummy / AI, AI tier | Carry none + dummy; AI opponents in a later stage |
+| practice robots: per seat none / dummy / AI, AI tier | Carry none + dummy. **AI drivers not implemented yet** |
 | autonomous path editor + enable | Adapt: selectable pre-built auto routines (a VR path editor is out of scope for v1) |
 | show event log (foul/score feed) | Carry |
 
@@ -87,11 +87,11 @@ master, game, shoot, intake, gate, beep, alert, voice volumes; sounds on/off; vo
 | render scale | Carry (XR eye texture scale) |
 | max FPS | Adapt: headset refresh rate is fixed by the runtime; option for 72/80/90/120 where supported |
 | anti-aliasing off / MSAA 2× / 4× | Carry |
-| shadows off/low/high/soft, element shadows | Carry (baked lighting + optional realtime robot shadow) |
+| shadows off/low/high/soft, element shadows | Adapt: baked field lighting; realtime shadow quality Off/Low/High and moving-object shadows Off / robots / robots + elements |
 | ambient occlusion | N/A (no post-processing, perf requirement) |
 | anisotropy, mesh detail, element detail | Carry (quality tiers) |
 | environment (room, arena, gym, …) | Carry: 2–3 lightweight venues |
-| reflections, effects level, camera motion | Carry (reduced motion = comfort option) |
+| reflections, effects level, camera motion | Adapt: reduced motion (chase keeps a fixed heading) and a comfort vignette; reflections/effects are not used (no post-processing) |
 | horizontal FOV | N/A in headset (fixed by optics) |
 | minimap | Carry (wrist / HUD minimap) |
 | perf overlay off / fps / full | Carry |

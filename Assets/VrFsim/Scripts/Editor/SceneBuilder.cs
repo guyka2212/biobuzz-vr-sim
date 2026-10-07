@@ -40,6 +40,11 @@ namespace VrFsim.EditorTools
             var field = FieldBuilder.Build(null, lib, FieldArt.Load());
             field.root.gameObject.AddComponent<FieldRoot>().Capture(field);
             MarkStatic(field.staticRoot.gameObject);
+            // FLOWERS are small and full of thin parts that lightmap badly; light probes light them instead.
+            foreach (var f in field.flowers)
+                foreach (var t in f.GetComponentsInChildren<Transform>(true))
+                    GameObjectUtility.SetStaticEditorFlags(t.gameObject,
+                        GameObjectUtility.GetStaticEditorFlags(t.gameObject) & ~StaticEditorFlags.ContributeGI);
             // Clear polycarbonate panels do not cast shadows.
             foreach (var r in field.staticRoot.GetComponentsInChildren<MeshRenderer>())
                 if (r.sharedMaterial == lib.wall) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
