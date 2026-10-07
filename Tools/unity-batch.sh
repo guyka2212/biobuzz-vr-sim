@@ -19,7 +19,7 @@ code=$?
 errors=$(grep -E "error CS[0-9]+|Scripts have compiler errors|executeMethod.*(failed|could not)" "$LOG" | sort -u)
 if [ -n "$errors" ]; then
   echo "$errors"
-  echo "UNITY BATCH: FAILED (exit $code) — see $LOG"
+  echo "UNITY BATCH: FAILED (exit $code) - see $LOG"
   exit 1
 fi
 echo "UNITY BATCH: OK (exit $code)"
