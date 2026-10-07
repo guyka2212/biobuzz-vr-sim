@@ -64,7 +64,12 @@ namespace VrFsim.Game
             State = ElementState.Held;
             Holder = holder;
             LastController = alliance;
+            // A held element must follow its slot exactly. With interpolation left on, the rigidbody
+            // keeps writing its own (stale) pose to the transform every frame and the element hangs
+            // in the air where it was picked up while the robot drives away.
+            Body.interpolation = RigidbodyInterpolation.None;
             Body.isKinematic = true;
+            Body.detectCollisions = false;
             Collider.enabled = false;
             transform.SetParent(slot, false);
             transform.localPosition = Vector3.zero;
@@ -79,6 +84,8 @@ namespace VrFsim.Game
             transform.localScale = Vector3.one * RadiusM * 2f;
             Collider.enabled = true;
             Body.isKinematic = false;
+            Body.detectCollisions = true;
+            Body.interpolation = RigidbodyInterpolation.Interpolate;
             Body.position = worldPos;
             Body.linearVelocity = velocity;
             Body.angularVelocity = Random.insideUnitSphere * 5f;
@@ -101,6 +108,8 @@ namespace VrFsim.Game
             transform.localScale = Vector3.one * RadiusM * 2f;
             Collider.enabled = true;
             Body.isKinematic = false;
+            Body.detectCollisions = true;
+            Body.interpolation = RigidbodyInterpolation.Interpolate;
             // With interpolation on, the rigidbody pose is authoritative; set it too or the move is undone.
             Body.position = worldPos;
             Body.rotation = rot;

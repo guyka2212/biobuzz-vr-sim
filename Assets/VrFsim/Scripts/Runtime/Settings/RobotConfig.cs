@@ -19,6 +19,12 @@ namespace VrFsim.Settings
     /// <summary>The 3×3 mounting grid on the chassis top.</summary>
     public enum MountPos { FrontLeft, Front, FrontRight, Left, Center, Right, BackLeft, Back, BackRight }
 
+    /// <summary>Livery drawn on the deck in the accent colour.</summary>
+    public enum Decal { None, Stripe, Chevron, Racing, Hazard, Checker }
+
+    /// <summary>Frame around the team-number sign placards.</summary>
+    public enum PlateStyle { Classic, Bold, Rounded }
+
     /// <summary>
     /// A robot build. All lengths in inches, mass in pounds, matching how FTC teams talk about
     /// robots. <see cref="Validate"/> clamps everything to legal, buildable values.
@@ -62,6 +68,10 @@ namespace VrFsim.Settings
         [Header("Appearance")]
         public string chassisColor = "#2B2F36";
         public string accentColor = "#F2B705";
+        /// <summary>Use the chassis colour for the accent too.</summary>
+        public bool accentMatchesChassis = false;
+        public Decal decal = Decal.None;
+        public PlateStyle plate = PlateStyle.Classic;
 
         // ── Limits ────────────────────────────────────────────────────────────────────────
         public const float MinSize = 12f, MaxSize = 18f, SizeStep = 0.5f;
@@ -193,6 +203,17 @@ namespace VrFsim.Settings
         public RobotConfig Clone() => JsonUtility.FromJson<RobotConfig>(JsonUtility.ToJson(this));
 
         public Color ChassisColor => ColorUtility.TryParseHtmlString(chassisColor, out var c) ? c : Color.gray;
-        public Color AccentColor => ColorUtility.TryParseHtmlString(accentColor, out var c) ? c : Color.yellow;
+        public Color AccentColor => accentMatchesChassis ? ChassisColor
+            : ColorUtility.TryParseHtmlString(accentColor, out var c) ? c : Color.yellow;
+
+        /// <summary>The robot paint colours (the same names dsim offers).</summary>
+        public static readonly (string name, string hex)[] Palette =
+        {
+            ("Graphite", "#2B2F36"), ("White", "#EDEDED"), ("Silver", "#B8BCC2"), ("Black", "#141414"),
+            ("Red", "#C8202A"), ("Orange", "#FF8A3D"), ("Yellow", "#F2C80F"), ("Green", "#3DBB5C"),
+            ("Teal", "#1FB5A6"), ("Blue", "#2F6FE4"), ("Purple", "#8E5CE6"), ("Pink", "#F0609E"),
+            ("Gold", "#D4A017"), ("Lime", "#9BE15D"), ("Magenta", "#D63AF9"), ("Cyan", "#2EC8F0"),
+            ("Lavender", "#B9A7F2"), ("Ember", "#E2502A"),
+        };
     }
 }

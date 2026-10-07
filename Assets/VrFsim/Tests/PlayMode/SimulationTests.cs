@@ -90,6 +90,23 @@ namespace VrFsim.Tests
         }
 
         [UnityTest]
+        public IEnumerator StoredElements_StayInsideTheRobotWhileDriving()
+        {
+            yield return Boot(Free());
+            var r = MatchController.Instance.Player;
+            r.PlaceAt(Units.Field(-45f, 0f, 0.05f), 90f);
+            r.Source = new ScriptSource { cmd = new DriverCommand { robotCentric = true, translate = new Vector2(0.4f, 1f), turn = 0.5f } };
+            yield return Seconds(1.2f);
+            float reach = Units.In(Mathf.Max(r.Config.lengthIn, r.Config.widthIn)) * 0.75f;
+            Assert.AreEqual(4, r.StoredCount);
+            foreach (var e in r.Stored)
+            {
+                var d = e.transform.position - r.transform.position; d.y = 0f;
+                Assert.Less(d.magnitude, reach, $"{e.name} is {Units.ToIn(d.magnitude):0.0} in from the robot centre");
+            }
+        }
+
+        [UnityTest]
         public IEnumerator Hive_TipsAtThreePollenWithThreeNectar()
         {
             yield return Boot(Free());

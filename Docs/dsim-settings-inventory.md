@@ -30,7 +30,7 @@ Legend: **Carry** = implemented in the VR sim · **Adapt** = same intent, VR-spe
 | lift (Box Tube placer) | none / box tube, 8 perimeter mounts | Carry |
 | element storage (`ballStorage`) | 1–4 (G407) | Carry |
 | pass target / pass preset | field point | Carry |
-| chassis colour, accent colour, decal, plate | colours / text | Carry (colours + number plate) |
+| chassis colour, accent colour, decal, plate | 18 colours, accent "match", decals none/stripe/chevron/racing/hazard/checker, plates classic/bold/rounded | Carry (all of them) |
 | saved robots library | list | Carry |
 | robot presets | Pollinator (mecanum, turret + box tube), Forager (butterfly, dumper), Skimmer (x-drive, double turret), Sniper (swerve, single turret) | Adapt: four presets with the same archetypes, own tuning |
 

@@ -38,6 +38,8 @@ namespace VrFsim.Robot
         static Mesh Cylinder => cylinder ? cylinder : cylinder = Resources.GetBuiltinResource<Mesh>("Cylinder.fbx");
 
         public const float ChassisHeightIn = 4f;
+        /// <summary>The enclosed body runs from 0.6 in above the tiles up to the deck.</summary>
+        public const float BodyBottomIn = 0.6f, BodyHeightIn = 6f, DeckIn = BodyBottomIn + BodyHeightIn;
         public const float WheelInsetIn = 2.6f;
 
         public static float TurretRadiusIn(RobotConfig c) => Mathf.Min(3.8f, 0.24f * Mathf.Min(c.lengthIn, c.widthIn));
@@ -100,19 +102,16 @@ namespace VrFsim.Robot
             var chassisMat = Tinted(lib.robotDark, c.ChassisColor);
             var accentMat = Tinted(lib.robotMetal, c.AccentColor);
 
-            if (art && art.chassis)
+            if (art && art.body)
             {
-                // Blender chassis: slot 0 plate (team colour), 1 aluminium channel, 2 electronics.
-                var ch = Part(vis, "Chassis", new Vector3(0f, ChassisHeightIn * 0.5f, 0f), new Vector3(W, ChassisHeightIn, L), chassisMat, art.chassis);
-                ch.GetComponent<MeshRenderer>().sharedMaterials = new[] { chassisMat, lib.robotMetal, lib.robotWheel };
+                // Closed body: pocketed side plates (team colour), deck (aluminium), electronics (black).
+                Part(vis, "Body", new Vector3(0f, BodyBottomIn + BodyHeightIn * 0.5f, 0f), new Vector3(W, BodyHeightIn, L),
+                    chassisMat, art.body, lib.robotMetal, lib.robotWheel);
             }
             else
             {
-                Part(vis, "ChassisPlate", new Vector3(0f, 1.6f, 0f), new Vector3(W - 1f, 0.25f, L - 1f), chassisMat);
-                Part(vis, "RailL", new Vector3(-W * 0.5f + 0.75f, 2.2f, 0f), new Vector3(1.5f, 3.2f, L), chassisMat);
-                Part(vis, "RailR", new Vector3(W * 0.5f - 0.75f, 2.2f, 0f), new Vector3(1.5f, 3.2f, L), chassisMat);
-                Part(vis, "RailF", new Vector3(0f, 3.4f, L * 0.5f - 0.5f), new Vector3(W - 3f, 1f, 1f), chassisMat);
-                Part(vis, "RailB", new Vector3(0f, 3.4f, -L * 0.5f + 0.5f), new Vector3(W - 3f, 1f, 1f), chassisMat);
+                Part(vis, "Body", new Vector3(0f, BodyBottomIn + BodyHeightIn * 0.5f, 0f), new Vector3(W - 0.2f, BodyHeightIn, L - 0.2f), chassisMat);
+                Part(vis, "Deck", new Vector3(0f, DeckIn - 0.1f, 0f), new Vector3(W, 0.2f, L), lib.robotMetal);
             }
 
             BuildWheels(rig, vis, c, lib, art);
@@ -120,6 +119,7 @@ namespace VrFsim.Robot
             BuildStorage(rig, root.transform, c);
             BuildLauncher(rig, vis, c, lib, art, accentMat);
             if (c.hasBoxTube) BuildBoxTube(rig, vis, c, lib, art, accentMat);
+            BuildDecal(vis, c, accentMat);
             BuildSigns(vis, c, alliance, lib);
             return rig;
         }
@@ -203,8 +203,13 @@ namespace VrFsim.Robot
                 roller.localRotation = Quaternion.FromToRotation(hasArt ? Vector3.right : Vector3.up, side);
 
                 foreach (float s in new[] { -1f, 1f })
-                    Part(vis, "IntakePlate", o3 * (edge + reach * 0.5f - 0.5f) + side * s * (across + 0.25f) + Vector3.up * 2.5f,
-                        sideways ? new Vector3(reach + 1f, 4f, 0.25f) : new Vector3(0.25f, 4f, reach + 1f), lib.robotMetal);
+                {
+                    var platePos = o3 * (edge + reach * 0.5f - 0.5f) + side * s * (across + 0.25f) + Vector3.up * 2.5f;
+                    var plate = art && art.intakePlate
+                        ? Part(vis, "IntakePlate", platePos, new Vector3(0.25f, 4f, reach + 1f), accent, art.intakePlate, lib.robotMetal, lib.robotWheel)
+                        : Part(vis, "IntakePlate", platePos, new Vector3(0.25f, 4f, reach + 1f), lib.robotMetal);
+                    plate.localRotation = Quaternion.LookRotation(o3);
+                }
             }
             switch (c.intakeMount)
             {
@@ -241,24 +246,25 @@ namespace VrFsim.Robot
             {
                 var slot = Child(store, "Slot" + i);
                 float x = (i % 2 == 0 ? -1f : 1f) * 1.9f, z = (i < 2 ? 1f : -1f) * 1.9f;
-                slot.localPosition = new Vector3(x, ChassisHeightIn + 2.4f, z) * Units.MetersPerInch;
+                // Inside the closed body, visible through the deck opening.
+                slot.localPosition = new Vector3(x, BodyBottomIn + 2.2f, z) * Units.MetersPerInch;
                 rig.storageSlots.Add(slot);
             }
         }
 
         static void BuildLauncher(RobotRig rig, Transform vis, RobotConfig c, MaterialLibrary lib, RobotArt art, Material accent)
         {
-            float topY = c.stowHeightIn;
             if (c.launcher == LauncherKind.Dumper)
             {
                 var dir = MountOutward(c.launcherMount);
                 var pos = MountXZ(c, c.launcherMount, 2.5f);
                 var o3 = new Vector3(dir.x, 0f, dir.y);
                 var bucket = Child(vis, "Dumper");
-                bucket.localPosition = new Vector3(pos.x, topY - 3f, pos.y) * Units.MetersPerInch;
+                bucket.localPosition = new Vector3(pos.x, DeckIn + 2f, pos.y) * Units.MetersPerInch;
                 bucket.localRotation = Quaternion.LookRotation(o3);
                 float span = Mathf.Abs(dir.x) > 0.5f ? c.lengthIn * 0.8f : c.widthIn * 0.8f;
-                Part(bucket, "Bucket", new Vector3(0f, 0f, 0f), new Vector3(span, 4f, 5f), accent, art ? art.dumper : null);
+                if (art && art.dumper) Part(bucket, "Bucket", Vector3.zero, new Vector3(span, 4f, 5f), accent, art.dumper, lib.robotMetal, lib.robotWheel);
+                else Part(bucket, "Bucket", Vector3.zero, new Vector3(span, 4f, 5f), accent);
                 if (!(art && art.dumper)) Part(bucket, "Hood", new Vector3(0f, 2.3f, 1.5f), new Vector3(span, 0.4f, 3f), lib.robotMetal);
                 var exit = Child(bucket, "Exit");
                 exit.localPosition = new Vector3(0f, 3f, 3f) * Units.MetersPerInch;
@@ -274,22 +280,25 @@ namespace VrFsim.Robot
             {
                 var mount = i == 0 ? c.launcherMount : c.launcherMount2;
                 var pos = MountXZ(c, mount, r + 0.5f);
-                var ringY = topY - 4.5f;
-                Part(vis, "TurretRing" + i, new Vector3(pos.x, ringY, pos.y), new Vector3(2f * r, 0.4f, 2f * r), lib.robotMetal, Cylinder);
-                var pivot = Child(vis, "Turret" + i);
-                pivot.localPosition = new Vector3(pos.x, ringY + 0.5f, pos.y) * Units.MetersPerInch;
                 bool turretArt = art && art.turret;
-                var body = Part(pivot, "Launcher", new Vector3(0f, 2f, 0f), new Vector3(r * 1.3f, 4f, r * 1.6f), accent, turretArt ? art.turret : null);
-                if (!turretArt)
+                var pivot = Child(vis, "Turret" + i);
+                pivot.localPosition = new Vector3(pos.x, DeckIn, pos.y) * Units.MetersPerInch;
+                float dia = Mathf.Clamp(2f * r + 1f, 5f, 9f);
+                if (turretArt)
                 {
-                    Part(pivot, "Flywheel", new Vector3(0f, 3.4f, r * 0.6f), new Vector3(2.6f, 0.8f, 2.6f), lib.robotDark, Cylinder);
-                    Part(pivot, "Hood", new Vector3(0f, 4.1f, 0f), new Vector3(r * 1.1f, 0.3f, r * 1.8f), lib.robotMetal);
+                    Part(pivot, "Launcher", Vector3.zero, Vector3.one * dia, accent, art.turret, lib.robotMetal, lib.robotWheel);
+                }
+                else
+                {
+                    Part(vis, "TurretRing" + i, new Vector3(pos.x, DeckIn + 0.2f, pos.y), new Vector3(2f * r, 0.4f, 2f * r), lib.robotMetal, Cylinder);
+                    Part(pivot, "Launcher", new Vector3(0f, 2.5f, 0f), new Vector3(r * 1.3f, 4f, r * 1.6f), accent);
+                    Part(pivot, "Flywheel", new Vector3(0f, 3.9f, r * 0.6f), new Vector3(2.6f, 0.8f, 2.6f), lib.robotDark, Cylinder);
                 }
                 var exit = Child(pivot, "Exit");
-                exit.localPosition = new Vector3(0f, 4.6f, r * 0.9f) * Units.MetersPerInch;
+                // Where the ball leaves the hood: up and in front of the flywheels.
+                exit.localPosition = new Vector3(0f, 0.62f * dia, 0.55f * dia) * Units.MetersPerInch;
                 rig.turrets[i] = pivot;
                 rig.turretExits[i] = exit;
-                _ = body;
             }
         }
 
@@ -298,15 +307,62 @@ namespace VrFsim.Robot
             var pos = MountXZ(c, c.boxTubeMount, 1.2f);
             var dir = MountOutward(c.boxTubeMount);
             var tube = Child(vis, "BoxTube");
-            tube.localPosition = new Vector3(pos.x, ChassisHeightIn, pos.y) * Units.MetersPerInch;
+            tube.localPosition = new Vector3(pos.x, DeckIn, pos.y) * Units.MetersPerInch;
             tube.localRotation = Quaternion.LookRotation(new Vector3(dir.x, 0f, dir.y));
-            float h = c.stowHeightIn - ChassisHeightIn;
-            Part(tube, "Tube", new Vector3(0f, h * 0.5f, 0f), new Vector3(1.5f, h, 1.5f), lib.robotMetal, art ? art.boxTube : null);
+            float h = Mathf.Max(3f, c.stowHeightIn - DeckIn);
+            if (art && art.boxTube) Part(tube, "Tube", new Vector3(0f, h * 0.5f, 0f), new Vector3(1.5f, h, 1.5f), lib.robotMetal, art.boxTube, lib.robotMetal, lib.robotWheel);
+            else Part(tube, "Tube", new Vector3(0f, h * 0.5f, 0f), new Vector3(1.5f, h, 1.5f), lib.robotMetal);
             var tip = Child(tube, "Tip");
             tip.localPosition = new Vector3(0f, h, 0f) * Units.MetersPerInch;
-            Part(tip, "Cup", new Vector3(0f, 0f, 1.5f), new Vector3(4.2f, 1.2f, 4.2f), accent);
+            if (art && art.placerCup) Part(tip, "Cup", new Vector3(0f, 0.6f, 1.6f), new Vector3(4.2f, 1.2f, 4.2f), accent, art.placerCup, lib.robotMetal, lib.robotWheel);
+            else Part(tip, "Cup", new Vector3(0f, 0f, 1.5f), new Vector3(4.2f, 1.2f, 4.2f), accent);
             rig.boxTube = tube;
             rig.boxTubeTip = tip;
+        }
+
+        /// <summary>Livery on the front and rear deck (the centre of the deck is open over storage).</summary>
+        static void BuildDecal(Transform vis, RobotConfig c, Material accent)
+        {
+            if (c.decal == Decal.None) return;
+            float L = c.lengthIn, W = c.widthIn, y = DeckIn + 0.04f;
+            float z0 = L * 0.19f, z1 = L * 0.47f, zm = (z0 + z1) * 0.5f, zl = z1 - z0;
+            var d = Child(vis, "Decal");
+            void Bar(Vector3 center, float w, float len, float yaw = 0f)
+            {
+                var t = Part(d, "Bar", center, new Vector3(w, 0.06f, len), accent);
+                t.localRotation = Quaternion.Euler(0f, yaw, 0f);
+                t.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            }
+            foreach (float s in new[] { 1f, -1f })
+            {
+                switch (c.decal)
+                {
+                    case Decal.Stripe:
+                        Bar(new Vector3(0f, y, s * zm), 2f, zl);
+                        break;
+                    case Decal.Racing:
+                        Bar(new Vector3(-1.6f, y, s * zm), 1.1f, zl);
+                        Bar(new Vector3(1.6f, y, s * zm), 1.1f, zl);
+                        break;
+                    case Decal.Chevron:
+                        if (s < 0) break;   // one chevron, pointing forward
+                        float arm = Mathf.Min(W * 0.32f, zl * 1.1f);
+                        Bar(new Vector3(-arm * 0.33f, y, zm), 1.3f, arm, 35f);
+                        Bar(new Vector3(arm * 0.33f, y, zm), 1.3f, arm, -35f);
+                        break;
+                    case Decal.Hazard:
+                        for (int i = -2; i <= 2; i++)
+                            Bar(new Vector3(i * W * 0.17f, y, s * zm), 1f, zl * 1.2f, 40f);
+                        break;
+                    case Decal.Checker:
+                        float sq = Mathf.Min(2f, zl / 2.2f);
+                        for (int ix = -3; ix <= 3; ix++)
+                            for (int iz = 0; iz < 2; iz++)
+                                if (((ix + iz) & 1) == 0)
+                                    Bar(new Vector3(ix * sq, y, s * (z0 + sq * (iz + 0.5f) + 0.2f)), sq, sq);
+                        break;
+                }
+            }
         }
 
         static void BuildSigns(Transform vis, RobotConfig c, Alliance a, MaterialLibrary lib)
@@ -315,8 +371,27 @@ namespace VrFsim.Robot
             string text = c.teamNumber > 0 ? c.teamNumber.ToString() : c.name;
             foreach (float s in new[] { -1f, 1f })
             {
-                var pos = new Vector3(s * (c.widthIn * 0.5f + 0.15f), 5.5f, 0f);
-                var plate = Part(vis, "Sign" + s, pos, new Vector3(0.25f, 3f, Mathf.Min(10f, c.lengthIn - 2f)), mat);
+                var pos = new Vector3(s * (c.widthIn * 0.5f + 0.15f), BodyBottomIn + BodyHeightIn * 0.55f, 0f);
+                float len = Mathf.Min(10f, c.lengthIn - 2f);
+                var plate = Part(vis, "Sign" + s, pos, new Vector3(0.25f, 3f, len), mat);
+                if (c.plate != PlateStyle.Classic)
+                {
+                    // A frame around the placard: square and thick (bold) or thin with round corners.
+                    bool bold = c.plate == PlateStyle.Bold;
+                    float f = bold ? 0.45f : 0.25f, x = pos.x + s * 0.05f;
+                    var frameMat = bold ? lib.robotWheel : lib.robotMetal;
+                    Part(vis, "PlateTop", new Vector3(x, pos.y + 1.5f + f * 0.5f, 0f), new Vector3(0.3f, f, len + 2f * f), frameMat);
+                    Part(vis, "PlateBottom", new Vector3(x, pos.y - 1.5f - f * 0.5f, 0f), new Vector3(0.3f, f, len + 2f * f), frameMat);
+                    Part(vis, "PlateFront", new Vector3(x, pos.y, len * 0.5f + f * 0.5f), new Vector3(0.3f, 3f, f), frameMat);
+                    Part(vis, "PlateBack", new Vector3(x, pos.y, -len * 0.5f - f * 0.5f), new Vector3(0.3f, 3f, f), frameMat);
+                    if (!bold)
+                        foreach (float cy in new[] { -1f, 1f })
+                            foreach (float cz in new[] { -1f, 1f })
+                            {
+                                var corner = Part(vis, "PlateCorner", new Vector3(x, pos.y + cy * 1.6f, cz * (len * 0.5f + 0.1f)), new Vector3(0.6f, 0.3f, 0.6f), frameMat, Cylinder);
+                                corner.localRotation = Quaternion.Euler(0f, 0f, 90f);
+                            }
+                }
                 var label = new GameObject("Number", typeof(TextMeshPro));
                 label.transform.SetParent(vis, false);
                 label.transform.localPosition = (pos + Vector3.right * s * 0.2f) * Units.MetersPerInch;
@@ -357,6 +432,18 @@ namespace VrFsim.Robot
         }
 
         /// <summary>A visual-only part; position and size in inches.</summary>
+        /// <summary>A multi-material part: slot 0 = <paramref name="mat"/>, then the extra slots.</summary>
+        static Transform Part(Transform parent, string name, Vector3 posIn, Vector3 sizeIn, Material mat, Mesh mesh, Material slot1, Material slot2)
+        {
+            var t = Part(parent, name, posIn, sizeIn, mat, mesh);
+            int n = mesh ? Mathf.Max(1, mesh.subMeshCount) : 1;
+            var slots = new[] { mat, slot1, slot2 };
+            var used = new Material[n];
+            for (int i = 0; i < n; i++) used[i] = slots[Mathf.Min(i, slots.Length - 1)];
+            t.GetComponent<MeshRenderer>().sharedMaterials = used;
+            return t;
+        }
+
         static Transform Part(Transform parent, string name, Vector3 posIn, Vector3 sizeIn, Material mat, Mesh mesh = null)
         {
             var go = new GameObject(name, typeof(MeshFilter), typeof(MeshRenderer));

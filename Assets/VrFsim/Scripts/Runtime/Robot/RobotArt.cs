@@ -12,15 +12,17 @@ namespace VrFsim.Robot
     {
         public const string ResourceName = "VrFsimRobotArt";
 
-        [Tooltip("Unit cube chassis; submeshes: 0 plate (team colour), 1 metal, 2 electronics.")] public Mesh chassis;
+        [Tooltip("Enclosed body, unit cube; slots: 0 team colour, 1 aluminium, 2 black.")] public Mesh body;
         [Tooltip("Unit diameter, unit width, axle along X.")] public Mesh mecanumWheel;
         public Mesh tractionWheel;
         public Mesh omniWheel;
         [Tooltip("Swerve module housing, unit size.")] public Mesh swerveModule;
-        [Tooltip("Turret: unit diameter ring + launcher, +Z is the shooting direction.")] public Mesh turret;
+        [Tooltip("Turret on a geared turntable, unit diameter, base at y = 0, shoots toward +Z.")] public Mesh turret;
         [Tooltip("Dumper bucket, unit size, +Z outward.")] public Mesh dumper;
         [Tooltip("Box Tube, unit size, extends along +Y.")] public Mesh boxTube;
         [Tooltip("Intake roller, unit length along X.")] public Mesh intakeRoller;
+        [Tooltip("Intake side plate, unit cube, rounded end toward +Z.")] public Mesh intakePlate;
+        [Tooltip("Box Tube placer cup, unit cube.")] public Mesh placerCup;
 
         public static RobotArt Load() => Resources.Load<RobotArt>(ResourceName);
     }

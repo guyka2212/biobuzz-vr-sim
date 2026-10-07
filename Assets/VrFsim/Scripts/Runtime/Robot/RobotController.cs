@@ -460,8 +460,8 @@ namespace VrFsim.Robot
         {
             if (!Rig.boxTubeTip) return;
             bool extending = Time.time < placeBusyUntil;
-            float stow = Config.stowHeightIn - RobotBuilder.ChassisHeightIn;
-            float ext = FieldSpec.FlowerTopRingTop + 2f - RobotBuilder.ChassisHeightIn;
+            float stow = Mathf.Max(3f, Config.stowHeightIn - RobotBuilder.DeckIn);
+            float ext = FieldSpec.FlowerTopRingTop + 2f - RobotBuilder.DeckIn;
             float h = extending ? ext : stow;
             var tube = Rig.boxTube.Find("Tube");
             float cur = Rig.boxTubeTip.localPosition.y / Units.MetersPerInch;

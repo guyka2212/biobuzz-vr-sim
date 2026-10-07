@@ -57,6 +57,7 @@ namespace VrFsim.EditorTools
             ConfigureRendering();
             CleanConfigObjects();
             EnsureMainScene();
+            EditorSceneManager.playModeStartScene = null;   // Play uses the open scene; tests use their own
             AssetDatabase.SaveAssets();
             Debug.Log("[VrFsim] Project configured for PC VR (OpenXR, Standalone).");
         }

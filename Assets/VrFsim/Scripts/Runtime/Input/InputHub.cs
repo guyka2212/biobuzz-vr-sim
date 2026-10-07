@@ -28,6 +28,12 @@ namespace VrFsim.Input
         /// <summary>When true (menu open), driving input is suppressed.</summary>
         public bool DrivingSuppressed { get; set; }
 
+        /// <summary>
+        /// Set by the view manager in the Free view: the gamepad sticks fly the camera (left stick
+        /// moves, right stick looks, triggers lift) and the robot holds still.
+        /// </summary>
+        public bool FreeCameraActive { get; set; }
+
         /// <summary>Driving actions that the settings menu offers for rebinding, in display order.</summary>
         public static readonly string[] RebindableActions =
         {
@@ -92,7 +98,7 @@ namespace VrFsim.Input
         public DriverCommand ReadDriver()
         {
             var s = SettingsStore.Current;
-            if (map == null || DrivingSuppressed) return DriverCommand.Idle;
+            if (map == null || DrivingSuppressed || FreeCameraActive) return DriverCommand.Idle;
 
             var c = s.controls;
             Vector2 l = Shape(leftStick.ReadValue<Vector2>(), c);
@@ -122,8 +128,31 @@ namespace VrFsim.Input
             return cmd;
         }
 
-        public Vector2 FreeCamMove => freeCamMove?.ReadValue<Vector2>() ?? Vector2.zero;
-        public float FreeCamLift => freeCamLift?.ReadValue<float>() ?? 0f;
+        public Vector2 FreeCamMove
+        {
+            get
+            {
+                if (map == null || DrivingSuppressed) return Vector2.zero;
+                var v = freeCamMove.ReadValue<Vector2>();
+                if (FreeCameraActive) v += Shape(leftStick.ReadValue<Vector2>(), SettingsStore.Current.controls);
+                return Vector2.ClampMagnitude(v, 1f);
+            }
+        }
+
+        public float FreeCamLift
+        {
+            get
+            {
+                if (map == null || DrivingSuppressed) return 0f;
+                float v = freeCamLift.ReadValue<float>();
+                if (FreeCameraActive) v += fire.ReadValue<float>() - intake.ReadValue<float>();
+                return Mathf.Clamp(v, -1f, 1f);
+            }
+        }
+
+        /// <summary>Right stick look (Free view only): x = yaw, y = pitch.</summary>
+        public Vector2 FreeCamLook => FreeCameraActive && map != null && !DrivingSuppressed
+            ? Shape(rightStick.ReadValue<Vector2>(), SettingsStore.Current.controls) : Vector2.zero;
 
         /// <summary>Radial deadzone rescaled to keep full range, then a power response curve.</summary>
         public static Vector2 Shape(Vector2 v, ControlSettings c)

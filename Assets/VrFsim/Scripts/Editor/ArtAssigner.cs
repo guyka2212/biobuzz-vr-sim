@@ -49,7 +49,9 @@ namespace VrFsim.EditorTools
             var robot = Resources.Load<RobotArt>(RobotArt.ResourceName);
             if (robot)
             {
-                robot.chassis = Mesh("RobotChassis");
+                robot.body = Mesh("RobotBody");
+                robot.intakePlate = Mesh("RobotIntakePlate");
+                robot.placerCup = Mesh("RobotPlacerCup");
                 robot.mecanumWheel = Mesh("RobotMecanumWheel");
                 robot.tractionWheel = Mesh("RobotTractionWheel");
                 robot.omniWheel = Mesh("RobotOmniWheel");

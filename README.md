@@ -78,8 +78,14 @@ Plug in the gamepad, or pair it over Bluetooth, **before** starting the game. No
 | Next camera view | D-pad Right | L |
 | Recenter view | D-pad Left | Home |
 
-In the menu: D-pad or stick to move, left/right to change a value, A to select, B to go back.
-You can also point a VR controller at the menu and pull its trigger.
+Everything works from the gamepad alone. A keyboard is only a fallback.
+- **Menu:** D-pad or stick to move, Left/Right to change a value, **A** to select, **B** to go
+  back, **Start** to close. Text such as the robot name is typed on an on-screen keyboard with the
+  D-pad and A (a physical keyboard also types into it). You can also point a VR controller at
+  the menu and pull its trigger.
+- **Free camera (Menu → Camera → View → Free):** the left stick flies, the right stick turns, and
+  the triggers raise and lower the camera. The robot holds still until you switch back to a
+  driving view (D-pad Right).
 
 ## Playing
 

@@ -3,6 +3,10 @@
     "rootNamespace": "VrFsim.Tests",
     "references": [
         "VrFsim.Runtime",
+        "Unity.InputSystem",
+        "UnityEngine.UI",
+        "Unity.TextMeshPro",
+        "Unity.XR.CoreUtils",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

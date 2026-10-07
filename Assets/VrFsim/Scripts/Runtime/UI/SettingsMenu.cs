@@ -23,6 +23,8 @@ namespace VrFsim.UI
     public class SettingsMenu : MonoBehaviour
     {
         Canvas canvas;
+        CanvasGroup menuGroup;
+        OnScreenKeyboard keyboard;
         RectTransform tabColumn, content;
         ScrollRect scroll;
         TextMeshProUGUI footer, title;
@@ -37,12 +39,7 @@ namespace VrFsim.UI
 
         (string name, Action build)[] tabs;
 
-        static readonly (string name, string hex)[] Palette =
-        {
-            ("Graphite", "#2B2F36"), ("Black", "#141414"), ("Silver", "#B8BCC2"), ("White", "#EDEDED"),
-            ("Gold", "#F2B705"), ("Orange", "#FF8A3D"), ("Green", "#3DBB5C"), ("Lime", "#9BE15D"),
-            ("Teal", "#1FB5A6"), ("Purple", "#8E5CE6"), ("Pink", "#F0609E"), ("Navy", "#22305A"),
-        };
+        static (string name, string hex)[] Palette => RobotConfig.Palette;
 
         void Start()
         {
@@ -74,6 +71,7 @@ namespace VrFsim.UI
         void Toggle()
         {
             if (InputHub.Instance && InputHub.Instance.IsRebinding) return;
+            if (keyboard && keyboard.IsOpen) { keyboard.Close(true); return; }
             SetOpen(!open);
         }
 
@@ -145,6 +143,7 @@ namespace VrFsim.UI
         {
             canvas = UiKit.WorldCanvas("SettingsMenu", transform, new Vector2(1200, 820), 1.1f, true);
             canvas.sortingOrder = 10;
+            menuGroup = canvas.gameObject.AddComponent<CanvasGroup>();
             var bg = UiKit.Box(canvas.transform, "Bg", UiKit.Bg);
             UiKit.Fill(bg.rectTransform);
 
@@ -198,6 +197,11 @@ namespace VrFsim.UI
             frt.anchorMin = new Vector2(0, 0); frt.anchorMax = new Vector2(1, 0); frt.pivot = new Vector2(0.5f, 0);
             frt.sizeDelta = new Vector2(-300, 44); frt.anchoredPosition = new Vector2(130, 10);
             UpdateFooter();
+
+            keyboard = canvas.gameObject.AddComponent<OnScreenKeyboard>();
+            keyboard.Build(canvas.transform, menuGroup);
+            var kbGroup = canvas.transform.Find("Keyboard").gameObject.AddComponent<CanvasGroup>();
+            kbGroup.ignoreParentGroups = true;
         }
 
         void ShowTab(int i)
@@ -352,22 +356,12 @@ namespace VrFsim.UI
 
         void TextField(string label, Func<string> get, Action<string> set, bool restart = false)
         {
-            var row = RowBase(label);
-            var box = UiKit.Box(row, "Input", new Color(0.08f, 0.08f, 0.1f));
-            UiKit.Size(box, 36, -1, 1);
-            var area = UiKit.Rect(box.transform, "TextArea"); UiKit.Fill(area, 10, 2, 10, 2);
-            area.gameObject.AddComponent<RectMask2D>();
-            var text = UiKit.Text(area, "Text", "", 22, UiKit.TextMain);
-            UiKit.Fill(text.rectTransform);
-            text.textWrappingMode = TextWrappingModes.NoWrap;
-            var input = box.gameObject.AddComponent<TMP_InputField>();
-            input.textViewport = area; input.textComponent = text; input.targetGraphic = box;
-            input.characterLimit = 24;
-            input.colors = UiKit.Colors();
-            input.onEndEdit.AddListener(v => { set(v); Changed(restart); });
-            var row2 = row.gameObject.AddComponent<InputRow>();
-            row2.input = input; row2.get = get;
-            rows.Add(row2);
+            Action($"{label}: {get()}", () => keyboard.Open(label, get(), 24, v =>
+            {
+                set(v);
+                Changed(restart);
+                foreach (var r in rows) r.Refresh();
+            }), () => $"{label}: {get()}   [A: edit]");
         }
 
         // ── Tabs ────────────────────────────────────────────────────────────────────────────
@@ -445,7 +439,11 @@ namespace VrFsim.UI
             Info(DriveSummary());
             Header("Colours");
             Stepper("Chassis colour", () => PaletteName(R.chassisColor), d => R.chassisColor = PaletteStep(R.chassisColor, d), true);
-            Stepper("Accent colour", () => PaletteName(R.accentColor), d => R.accentColor = PaletteStep(R.accentColor, d), true);
+            Toggle("Accent matches chassis", () => R.accentMatchesChassis, v => { R.accentMatchesChassis = v; ShowTabDeferred(); }, true);
+            if (!R.accentMatchesChassis)
+                Stepper("Accent colour", () => PaletteName(R.accentColor), d => R.accentColor = PaletteStep(R.accentColor, d), true);
+            Choice("Decal", () => R.decal, v => R.decal = v, true);
+            Choice("Sign plate", () => R.plate, v => R.plate = v, true);
             Header("Saved robots");
             Action("Save current robot", () =>
             {
@@ -665,14 +663,6 @@ namespace VrFsim.UI
         static string F1(float v) => v.ToString("0.0");
         static string F2(float v) => v.ToString("0.00");
         static string Pct(float v) => Mathf.RoundToInt(v * 100f) + "%";
-    }
-
-    public class InputRow : MonoBehaviour, IMenuRow
-    {
-        public TMP_InputField input;
-        public Func<string> get;
-        public Selectable Focus => input;
-        public void Refresh() { if (!input.isFocused) input.SetTextWithoutNotify(get()); }
     }
 
     /// <summary>B on a content row returns to the tab list.</summary>

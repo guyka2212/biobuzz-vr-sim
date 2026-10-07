@@ -6,7 +6,8 @@ namespace VrFsim.EditorTools
 {
     /// <summary>
     /// A fresh clone (or a project whose last scene was deleted) opens on an empty untitled scene.
-    /// When that happens, open the game's Main scene instead, and make Play always start from it.
+    /// When that happens, open the game's Main scene instead. (It deliberately does not set the
+    /// play-mode start scene: that would also hijack the test runner's own scene.)
     /// </summary>
     [InitializeOnLoad]
     static class OpenMainScene
@@ -17,7 +18,6 @@ namespace VrFsim.EditorTools
             {
                 var main = AssetDatabase.LoadAssetAtPath<SceneAsset>(ProjectSetup.MainScenePath);
                 if (!main) return;
-                EditorSceneManager.playModeStartScene = main;
 
                 if (EditorApplication.isPlayingOrWillChangePlaymode || UnityEngine.Application.isBatchMode) return;
                 var active = SceneManager.GetActiveScene();

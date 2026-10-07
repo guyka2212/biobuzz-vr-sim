@@ -156,6 +156,7 @@ namespace VrFsim.VR
         void LateUpdate()
         {
             XrActive = HeadsetRunning();
+            if (InputHub.Instance) InputHub.Instance.FreeCameraActive = View == CameraView.Free;
             UpdateView(false);
             if (!XrActive) DesktopLook();
             else
@@ -213,6 +214,13 @@ namespace VrFsim.VR
                     var hub = InputHub.Instance;
                     if (hub)
                     {
+                        var look = hub.FreeCamLook;
+                        if (look.sqrMagnitude > 0f)
+                        {
+                            // Turn the whole view (comfortable in VR); on a monitor also pitch.
+                            o.rotation = Quaternion.Euler(0f, o.eulerAngles.y + look.x * 90f * Time.deltaTime, 0f);
+                            if (!XrActive) desktopPitch = Mathf.Clamp(desktopPitch - look.y * 70f * Time.deltaTime, -80f, 85f);
+                        }
                         var mv = hub.FreeCamMove;
                         Vector3 fwd = Head.forward; fwd.y = 0f; fwd.Normalize();
                         Vector3 right = Vector3.Cross(Vector3.up, fwd);
