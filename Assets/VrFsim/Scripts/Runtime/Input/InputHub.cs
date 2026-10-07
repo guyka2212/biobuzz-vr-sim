@@ -23,7 +23,7 @@ namespace VrFsim.Input
             rampToggle, pass, driveModeToggle, flipFront, slowMode, startMatch, restart, menu,
             cameraCycle, recenter, freeCamMove, freeCamLift;
 
-        public event Action MenuPressed, RestartPressed, StartMatchPressed, CameraCyclePressed, RecenterPressed;
+        public event Action MenuPressed, RestartPressed, StartMatchPressed, CameraCyclePressed, RecenterPressed, HumanNectarPressed;
 
         /// <summary>When true (menu open), driving input is suppressed.</summary>
         public bool DrivingSuppressed { get; set; }
@@ -85,6 +85,7 @@ namespace VrFsim.Input
             if (startMatch.WasPressedThisFrame()) StartMatchPressed?.Invoke();
             if (cameraCycle.WasPressedThisFrame()) CameraCyclePressed?.Invoke();
             if (recenter.WasPressedThisFrame()) RecenterPressed?.Invoke();
+            if (humanNectar.WasPressedThisFrame()) HumanNectarPressed?.Invoke();
         }
 
         /// <summary>Sample the driver's command for this frame.</summary>

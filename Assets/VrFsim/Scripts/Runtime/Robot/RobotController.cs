@@ -32,6 +32,10 @@ namespace VrFsim.Robot
         public bool RampDeployed { get; private set; }
         public bool FlipFront { get; private set; }
 
+        /// <summary>AUTO routines aim with AprilTags regardless of the driver's assist setting.</summary>
+        public bool ForceAimAssist { get; set; }
+        public bool AimAssist => Assists.aimAssist || ForceAimAssist;
+
         public DriverCommand LastCommand { get; private set; }
         public Vector3 Velocity => Rig.body.linearVelocity;
 
@@ -327,11 +331,11 @@ namespace VrFsim.Robot
             {
                 var t = Rig.turrets[i];
                 Vector3 to = target - t.position; to.y = 0f;
-                Quaternion want = Assists.aimAssist && to.sqrMagnitude > 1e-4f
+                Quaternion want = AimAssist && to.sqrMagnitude > 1e-4f
                     ? Quaternion.LookRotation(to)
                     : transform.rotation;
                 t.rotation = Quaternion.RotateTowards(t.rotation, want, 540f * dt);
-                if (i == 0) hasAimSolution = Assists.aimAssist && Quaternion.Angle(t.rotation, want) < 2.5f;
+                if (i == 0) hasAimSolution = AimAssist && Quaternion.Angle(t.rotation, want) < 2.5f;
             }
         }
 
@@ -358,7 +362,7 @@ namespace VrFsim.Robot
             int idx = twin && e.Kind.IsNectar() ? 1 : 0;
             var exit = Rig.turretExits[Mathf.Min(idx, Rig.turretExits.Length - 1)];
             Vector3 from = exit.position, target = HiveTarget();
-            if (!Assists.aimAssist)
+            if (!AimAssist)
             {
                 Vector3 flat = target - from; flat.y = 0f;
                 Vector3 heading = exit.forward; heading.y = 0f; heading.Normalize();
@@ -366,7 +370,7 @@ namespace VrFsim.Robot
                 target.y = HiveTarget().y;
             }
             Ballistics.ApexShot(from, target, Mathf.Max(target.y, from.y) + 0.3f, out var v);
-            if (Assists.aimAssist) v -= Rig.body.linearVelocity; // shoot-on-the-move compensation
+            if (AimAssist) v -= Rig.body.linearVelocity; // shoot-on-the-move compensation
             v = Vector3.ClampMagnitude(Ballistics.Disperse(v, 0.02f, 0.8f), Ballistics.MaxLaunchSpeed);
             e.Release(from, v + Rig.body.linearVelocity, true);
             nextShot = Time.time + TurretInterval;
