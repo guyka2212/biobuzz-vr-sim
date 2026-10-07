@@ -109,6 +109,17 @@ namespace VrFsim.Tests
         }
 
         [Test]
+        public void Settings_OldFilesMigrateToAutoOff()
+        {
+            var s = new SimSettings();
+            JsonUtility.FromJsonOverwrite("{\"version\":1,\"match\":{\"auto\":2,\"mode\":0}}", s);
+            s.Validate();
+            Assert.AreEqual(AutoRoutine.Off, s.match.auto, "old saved routine is replaced by Off");
+            Assert.AreEqual(SimSettings.CurrentVersion, s.version);
+            Assert.AreEqual(AutoRoutine.Off, new SimSettings().match.auto, "new settings default to Off");
+        }
+
+        [Test]
         public void Settings_RoundTripThroughJson()
         {
             var s = new SimSettings();

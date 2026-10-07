@@ -34,9 +34,6 @@ namespace VrFsim.Match
             var cmd = new DriverCommand { robotCentric = true };
             switch (routine)
             {
-                case AutoRoutine.DoNothing:
-                    return DriverCommand.Idle;
-
                 case AutoRoutine.Leave:
                     if (step == 0) { cmd.translate = new Vector2(0f, 0.5f); if (t > 0.7f) Next(); }
                     return cmd;

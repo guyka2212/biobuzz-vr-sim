@@ -340,7 +340,8 @@ namespace VrFsim.Match
                         break;
                     case MatchPhase.Auto:
                         r.Enabled = player;
-                        if (player && s.match.auto == AutoRoutine.DriveYourself) { r.Source = new DriverSource(); r.ForceAimAssist = false; }
+                        // AUTO Off: the player drives the 30 s, like dsim. Otherwise a pre-programmed routine runs.
+                        if (player && s.match.auto == AutoRoutine.Off) { r.Source = new DriverSource(); r.ForceAimAssist = false; }
                         else if (player) { r.Source = new AutoSource(s.match.auto); r.ForceAimAssist = true; }
                         break;
                     case MatchPhase.Teleop:

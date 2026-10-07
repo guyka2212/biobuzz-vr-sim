@@ -304,7 +304,7 @@ namespace VrFsim.Tests
         {
             yield return Boot(new SimSettings());
             var m = MatchController.Instance;
-            Assert.AreEqual(AutoRoutine.DriveYourself, SettingsStore.Current.match.auto);
+            Assert.AreEqual(AutoRoutine.Off, SettingsStore.Current.match.auto);
             m.StartMatch();
             yield return null;
             Assert.AreEqual(MatchPhase.Auto, m.Phase);

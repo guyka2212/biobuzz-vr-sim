@@ -12,7 +12,7 @@ namespace VrFsim.Settings
     /// Who controls the robot in AUTO. DriveYourself (the default, like dsim) lets the player
     /// drive the 30 s period to practise it; the others are pre-programmed routines, like a real OpMode.
     /// </summary>
-    public enum AutoRoutine { DoNothing, Leave, LaunchPreloadsAndLeave, LaunchPreloadsAndPark, DriveYourself }
+    public enum AutoRoutine { Off, Leave, LaunchPreloadsAndLeave, LaunchPreloadsAndPark }
     public enum StartAnchor { WallNearAudience, WallCenter, WallBehindLoadingZone, AudienceWall, Custom }
     public enum StationSlot { NearAudience, FarFromAudience }
     public enum CameraView { DriverStation, Overhead, Chase, RobotPov, Free }
@@ -71,7 +71,7 @@ namespace VrFsim.Settings
         public StartAnchor start = StartAnchor.WallCenter;
         public CustomPose customStart = new CustomPose();
         public List<CustomPose> savedStarts = new List<CustomPose>();
-        public AutoRoutine auto = AutoRoutine.DriveYourself;
+        public AutoRoutine auto = AutoRoutine.Off;
         public PracticeSeat partner = PracticeSeat.None;
         public PracticeSeat opponent1 = PracticeSeat.None;
         public PracticeSeat opponent2 = PracticeSeat.None;
@@ -80,6 +80,7 @@ namespace VrFsim.Settings
 
         public void Validate()
         {
+            if (!System.Enum.IsDefined(typeof(AutoRoutine), auto)) auto = AutoRoutine.Off;
             customStart ??= new CustomPose();
             savedStarts ??= new List<CustomPose>();
             if (savedStarts.Count > 8) savedStarts.RemoveRange(8, savedStarts.Count - 8);
@@ -196,7 +197,8 @@ namespace VrFsim.Settings
     [Serializable]
     public class SimSettings
     {
-        public int version = 1;
+        public int version = CurrentVersion;
+        public const int CurrentVersion = 2;
         public RobotConfig robot = RobotPresets.Default();
         public List<RobotConfig> savedRobots = new List<RobotConfig>();
         public AssistSettings assists = new AssistSettings();
@@ -211,6 +213,9 @@ namespace VrFsim.Settings
 
         public void Validate()
         {
+            // v2: AUTO is Off (the player drives) by default; older files defaulted to a routine.
+            if (version < 2) { match ??= new MatchSettings(); match.auto = AutoRoutine.Off; }
+            version = CurrentVersion;
             robot ??= RobotPresets.Default();
             savedRobots ??= new List<RobotConfig>();
             assists ??= new AssistSettings();

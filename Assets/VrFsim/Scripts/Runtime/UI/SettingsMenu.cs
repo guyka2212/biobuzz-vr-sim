@@ -407,7 +407,14 @@ namespace VrFsim.UI
                     });
                 }
             }
-            Choice("AUTO routine", () => S.match.auto, v => S.match.auto = v, true);
+            Stepper("AUTO", () => AutoName(S.match.auto), d =>
+            {
+                var all = (AutoRoutine[])Enum.GetValues(typeof(AutoRoutine));
+                S.match.auto = all[(Array.IndexOf(all, S.match.auto) + d + all.Length) % all.Length];
+            }, true);
+            Live(() => S.match.auto == AutoRoutine.Off
+                ? "You drive the robot during AUTO."
+                : "The robot runs this pre-programmed routine during AUTO (no driver input, G401).");
             Header("Practice robots");
             Choice("Partner", () => S.match.partner, v => S.match.partner = v, true);
             Choice("Opponent 1", () => S.match.opponent1, v => S.match.opponent1 = v, true);
@@ -430,6 +437,11 @@ namespace VrFsim.UI
             : k == LauncherKind.DoubleTurret ? "One POLLEN turret, one NECTAR turret"
             : "POLLEN and NECTAR - turn to aim";
         static string MountName(IntakeMount m) => m == IntakeMount.Front ? "FRONT" : m == IntakeMount.Back ? "BACK" : m == IntakeMount.Side ? "SIDES" : "FRONT+BACK";
+        static string AutoName(AutoRoutine a) =>
+            a == AutoRoutine.Off ? "Off - you drive"
+            : a == AutoRoutine.Leave ? "Routine: leave the wall"
+            : a == AutoRoutine.LaunchPreloadsAndLeave ? "Routine: launch preloads"
+            : "Routine: launch preloads, then park";
         static string DrivetrainName(DrivetrainType d) => d == DrivetrainType.XDrive ? "X-drive" : d.ToString();
 
         void BuildRobotTab()

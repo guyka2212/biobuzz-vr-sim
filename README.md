@@ -90,7 +90,7 @@ Everything works from the gamepad alone. A keyboard is only a fallback.
 ## Playing
 
 1. You start at the red driver station. A match is staged and waiting. Press **A** to start it.
-2. **AUTO (0:30):** you drive the robot yourself to practise the autonomous period, as in dsim.
+2. **AUTO (0:30):** AUTO is **Off** by default, so you drive the robot yourself to practise the autonomous period, as in dsim.
    To have the robot run a pre-programmed routine instead, as a real OpMode would (G401: no
    driver input), pick one in Menu → Match → AUTO routine.
 3. **Transition (0:08):** nothing can be done. The robot is disabled (G403) and the human player
