@@ -23,6 +23,8 @@ namespace VrFsim.EditorTools
     {
         public const string MainScenePath = "Assets/VrFsim/Scenes/Main.unity";
         public const string LoadingScenePath = "Assets/VrFsim/Scenes/Loading.unity";
+        /// <summary>Game version: the build, the installer and the GitHub release tag (v + this).</summary>
+        public const string Version = "0.1.0";
 
         // Controller profiles for the PC headsets OpenXR runtimes commonly expose. Matched by type
         // name so a profile missing from a future OpenXR package version is skipped, not a compile error.
@@ -68,6 +70,7 @@ namespace VrFsim.EditorTools
         {
             PlayerSettings.companyName = "VrFsim";
             PlayerSettings.productName = "VrFsim";
+            PlayerSettings.bundleVersion = Version;
             PlayerSettings.colorSpace = ColorSpace.Linear;
             PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.StandaloneWindows64, false);
             PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { GraphicsDeviceType.Direct3D11 });
@@ -81,6 +84,8 @@ namespace VrFsim.EditorTools
             PlayerSettings.runInBackground = true;
             PlayerSettings.visibleInBackground = true;
             PlayerSettings.fullScreenMode = FullScreenMode.Windowed;
+            PlayerSettings.resizableWindow = true;      // the spectator window (VR mirror) can be resized
+            PlayerSettings.allowFullscreenSwitch = true;
             PlayerSettings.defaultScreenWidth = 1280;
             PlayerSettings.defaultScreenHeight = 720;
 

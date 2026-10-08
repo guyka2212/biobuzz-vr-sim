@@ -127,6 +127,16 @@ namespace VrFsim.VR
         /// device. A PC VR runtime can be installed and selected with no headset connected; then
         /// the game must behave as a desktop game, not wait for tracking that never comes.
         /// </summary>
+        /// <summary>
+        /// The desktop window mirrors the headset (one undistorted eye), so people around the player
+        /// can watch what they see, as in the editor's Game view.
+        /// </summary>
+        public static void MirrorHeadsetToWindow()
+        {
+            if (XRSettings.gameViewRenderMode != GameViewRenderMode.LeftEye)
+                XRSettings.gameViewRenderMode = GameViewRenderMode.LeftEye;
+        }
+
         public static bool HeadsetRunning()
         {
             if (!XRSettings.isDeviceActive) return false;
@@ -165,6 +175,7 @@ namespace VrFsim.VR
         void LateUpdate()
         {
             XrActive = HeadsetRunning();
+            if (XrActive) MirrorHeadsetToWindow();
             // Without a headset the tracked-pose drivers would reset the camera to the tracking
             // origin (the floor) every frame, so they only run in VR.
             foreach (var t in trackers) if (t && t.enabled != XrActive) t.enabled = XrActive;

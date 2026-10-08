@@ -2,6 +2,12 @@
 
 <p align="center"><img src="Docs/images/vrfsim-logo.png" alt="VrFsim — FTC simulator in VR" width="600"></p>
 
+<p align="center">
+  <a href="https://github.com/guyka2212/biobuzz-vr-sim/releases/latest/download/VrFsim-Setup.exe"><img src="https://img.shields.io/badge/Download-VrFsim%20for%20Windows-FFB400?style=for-the-badge&labelColor=14161A" alt="Download VrFsim for Windows"></a>
+  <br>
+  <a href="https://github.com/guyka2212/biobuzz-vr-sim/releases/latest/download/VrFsim-Setup.exe"><b>⬇ Click here to download the installer (VrFsim-Setup.exe)</b></a> — <a href="#installing">how to install</a>
+</p>
+
 VrFsim is a PC VR practice simulator for the *FIRST* Tech Challenge 2026–27 game, **BIOBUZZ**.
 You put on a PC VR headset and stand at the driver station in the ALLIANCE AREA, as a real
 DRIVER does. Then you drive a simulated FTC robot on a full-size field with an ordinary gamepad.
@@ -30,6 +36,21 @@ DRIVER does. Then you drive a simulated FTC robot on a full-size field with an o
 
 No headset? The game also runs on a monitor. Hold the right mouse button to look around.
 
+## Installing
+
+1. **[Download VrFsim-Setup.exe](https://github.com/guyka2212/biobuzz-vr-sim/releases/latest/download/VrFsim-Setup.exe)** (about 32 MB; all versions are on the
+   [Releases page](https://github.com/guyka2212/biobuzz-vr-sim/releases)).
+2. Run it. Windows may show *"Windows protected your PC"* because the installer is not
+   code-signed: click **More info → Run anyway**.
+3. Click **Install**. No administrator rights are needed. It installs to
+   `%LOCALAPPDATA%\Programs\VrFsim` and adds a **VrFsim** icon to your desktop and Start menu.
+4. Start VrFsim from the desktop icon. With a headset running, the window on your monitor
+   shows what the player sees in VR, so others can watch. You can resize it, or press
+   Alt+Enter for full screen.
+
+To update, run the new installer; it replaces the old version and keeps your settings.
+To uninstall: Windows **Settings → Apps → Installed apps → VrFsim → Uninstall**.
+
 ## Setting up the headset
 
 The game uses OpenXR, so it runs on whichever OpenXR runtime is **active** on your PC.
@@ -41,7 +62,7 @@ The game uses OpenXR, so it runs on whichever OpenXR runtime is **active** on yo
 2. Make that software the active OpenXR runtime:
    - **Meta Quest Link app:** Settings → General → *OpenXR Runtime* → *Set Meta Quest Link as active*.
    - **SteamVR:** Settings → OpenXR → *Set SteamVR as OpenXR Runtime*.
-3. Start the headset software, put the headset on, then launch `VrFsim.exe`.
+3. Start the headset software, put the headset on, then launch VrFsim (desktop icon).
 4. Stand where you want to drive and press **Recenter** (D-pad Left) to face the field.
 
 The refresh rate (72/90/120 Hz) is set in your VR runtime, not in the game. VrFsim targets 90 fps.
@@ -168,6 +189,15 @@ git clone https://github.com/guyka2212/biobuzz-vr-sim.git
 "C:/Program Files/Unity/Hub/Editor/6000.5.8f1/Editor/Unity.exe" -batchmode -quit -projectPath . -executeMethod VrFsim.EditorTools.BuildTool.BuildWindows -logFile Logs/build.log
 ```
 
+4. Installer: `Tools/make-installer.sh` packs the build into `Builds/VrFsim-Setup.exe` (one file,
+   per-user install, desktop and Start menu shortcuts, uninstall entry). It uses only what ships
+   with Windows (PowerShell and the .NET Framework C# compiler); the source is `Tools/installer/`.
+   The version comes from `ProjectSetup.Version`. Publish it as a GitHub release:
+
+```bash
+gh release create v0.1.0 Builds/VrFsim-Setup.exe --title "VrFsim 0.1.0"
+```
+
 Other editor tools under **VrFsim → Setup**: *Configure Project* (OpenXR, controller
 profiles, URP settings, app icon), *Build Scene* (regenerates the Main scene from code), *Build
 Loading Scene*, and *Bake Lighting*.
@@ -192,7 +222,8 @@ Assets/VrFsim/
   Resources/        input actions, material library, art slots
   Tests/            EditMode and PlayMode tests
   Resources/Branding/  logo sprites (loading screen, menu)   Art/Branding/  app icon
-Tools/              batch scripts (compile, test, capture), Blender model scripts, logo generator
+Tools/              batch scripts (compile, test, capture, installer), Blender model scripts, logo generator
+  installer/        the Windows installer source (C#), its icon and manifest
 Docs/               verified game facts and the dsim settings inventory
 ```
 

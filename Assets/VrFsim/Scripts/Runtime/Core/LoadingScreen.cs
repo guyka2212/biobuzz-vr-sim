@@ -88,7 +88,7 @@ namespace VrFsim
         {
             // XR can finish starting a frame or two after the first scene; until then drive the
             // camera as a desktop one (the pose driver would pin it to the floor).
-            if (!head.enabled && ViewManager.HeadsetRunning()) head.enabled = true;
+            if (!head.enabled && ViewManager.HeadsetRunning()) { head.enabled = true; ViewManager.MirrorHeadsetToWindow(); }
 
             shown = Mathf.MoveTowards(shown, target, Time.unscaledDeltaTime * 1.2f);
             fill.anchorMax = new Vector2(shown, 1f);
@@ -126,6 +126,7 @@ namespace VrFsim
             head.trackingType = TrackedPoseDriver.TrackingType.RotationAndPosition;
             head.updateType = TrackedPoseDriver.UpdateType.UpdateAndBeforeRender;
             head.enabled = ViewManager.HeadsetRunning();
+            if (head.enabled) ViewManager.MirrorHeadsetToWindow();
         }
 
         void BuildPanel()
