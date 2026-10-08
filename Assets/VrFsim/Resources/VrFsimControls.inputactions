@@ -683,28 +683,6 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "",
-                    "id": "7ccf83f4-3ed8-5a59-bea0-5db2d577895a",
-                    "path": "<XRController>{RightHand}/primary2DAxis",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "XR",
-                    "action": "FreeCamMove",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "87ec137e-94a7-5f7d-a1a2-99a42f0bea47",
-                    "path": "<XRController>{RightHand}/thumbstick",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "XR",
-                    "action": "FreeCamMove",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
                     "name": "2DVector",
                     "id": "c5a1e6de-f0f1-5a5b-8887-713afc414832",
                     "path": "2DVector",
@@ -760,28 +738,6 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "",
-                    "id": "28ffda63-f980-5376-b662-db5a0092fde6",
-                    "path": "<XRController>{LeftHand}/primary2DAxis/y",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "XR",
-                    "action": "FreeCamLift",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "8bb86810-2b21-52a8-9d40-853999e0881c",
-                    "path": "<XRController>{LeftHand}/thumbstick/y",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "XR",
-                    "action": "FreeCamLift",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
                     "name": "1DAxis",
                     "id": "0ef3814c-6f6e-5639-a56d-3d1b54bd92c1",
                     "path": "1DAxis",
@@ -813,6 +769,380 @@
                     "action": "FreeCamLift",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "5c23fe90-94f6-480b-ac6e-1948ca35f2fd",
+                    "path": "<XRController>{LeftHand}/primary2DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "LeftStick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5fef7724-8481-4445-9aa5-371ec1a694d5",
+                    "path": "<XRController>{RightHand}/primary2DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "RightStick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "44f73fa4-2675-4aa5-aabf-c72c02895b56",
+                    "path": "<XRController>{LeftHand}/trigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "Intake",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a6b8baa5-3c0a-4491-b470-ef0a52279986",
+                    "path": "<XRController>{RightHand}/trigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "Fire",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4ba23ddf-7438-41b7-9aab-9b70fca788fa",
+                    "path": "<XRController>{LeftHand}/gripPressed",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "PlacePollen",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "06b1a943-68b5-4f99-bb4d-1506fee1bcae",
+                    "path": "<XRController>{RightHand}/gripPressed",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "DriveModeToggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "79319934-1f3f-4874-95de-d9f73c8dc740",
+                    "path": "<XRController>{RightHand}/primaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "StartMatch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7b1a871b-cb9f-446e-8051-daea521e0b77",
+                    "path": "<XRController>{RightHand}/secondaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "Outtake",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8158a9c6-b156-490d-bcfc-478094cf94ee",
+                    "path": "<XRController>{LeftHand}/primaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "SlowMode",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "14e2980e-939b-46a0-83bd-4a7d58b1c311",
+                    "path": "<XRController>{LeftHand}/secondaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "PlaceNectar",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "341c2e05-933a-4c36-a6a7-623b6900d775",
+                    "path": "<XRController>{LeftHand}/primary2DAxisClick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "Pass",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e836165f-6b9e-4eab-96dd-ee2408037ff6",
+                    "path": "<XRController>{RightHand}/primary2DAxisClick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "RampToggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "83e42a97-1ade-40af-b4cb-d0ab83b9add9",
+                    "path": "<Joystick>/stick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Joystick",
+                    "action": "LeftStick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "2DVector",
+                    "id": "df68afd9-cfc5-4d44-b7fb-4fbe2faa7250",
+                    "path": "2DVector(mode=2)",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Joystick",
+                    "action": "RightStick",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "1490aaa5-db9c-4ed1-a7fc-98d2776f7805",
+                    "path": "<Joystick>/rz",
+                    "interactions": "",
+                    "processors": "Clamp(min=-1,max=0),Invert",
+                    "groups": "Joystick",
+                    "action": "RightStick",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "97c073a4-771f-4600-bb00-8503e2509a1e",
+                    "path": "<Joystick>/rz",
+                    "interactions": "",
+                    "processors": "Clamp(min=0,max=1)",
+                    "groups": "Joystick",
+                    "action": "RightStick",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "bfb792c0-04cc-4570-8887-7c4f34ec6049",
+                    "path": "<Joystick>/z",
+                    "interactions": "",
+                    "processors": "Clamp(min=-1,max=0),Invert",
+                    "groups": "Joystick",
+                    "action": "RightStick",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "65840c99-18ae-41f2-9aad-2e3a5638065c",
+                    "path": "<Joystick>/z",
+                    "interactions": "",
+                    "processors": "Clamp(min=0,max=1)",
+                    "groups": "Joystick",
+                    "action": "RightStick",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "e38071da-3d68-4f23-a9fc-5d837bcd507a",
+                    "path": "<Joystick>/button7",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Joystick",
+                    "action": "Intake",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "381a4f5d-1669-4438-9882-6e0489a3f5a6",
+                    "path": "<Joystick>/button8",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Joystick",
+                    "action": "Fire",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "be7e94e5-6b96-461f-aa29-f0a33ee35af9",
+                    "path": "<Joystick>/button3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Joystick",
+                    "action": "Outtake",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8d9d48cf-9092-4c58-bf5b-acf645c9f187",
+                    "path": "<Joystick>/button2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Joystick",
+                    "action": "StartMatch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "08d6976f-ab75-43a9-bd95-1434742aeba4",
+                    "path": "<Joystick>/trigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Joystick",
+                    "action": "SlowMode",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a53e62db-f3d9-445d-826a-9e81846a86ee",
+                    "path": "<Joystick>/button4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Joystick",
+                    "action": "FlipFront",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e2945a55-0345-441b-b459-47a9909d0852",
+                    "path": "<Joystick>/button5",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Joystick",
+                    "action": "PlacePollen",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5d9d1645-4d6b-4d18-9469-4eb51e2f96db",
+                    "path": "<Joystick>/button6",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Joystick",
+                    "action": "DriveModeToggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5b1cfc4e-d094-488d-b0f8-69535a836eb8",
+                    "path": "<Joystick>/button9",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Joystick",
+                    "action": "Restart",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3051f18e-7d79-4055-ab5a-38fda44dd0dd",
+                    "path": "<Joystick>/button10",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Joystick",
+                    "action": "Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b661eed7-25a2-4c41-91ab-6c651a0742ea",
+                    "path": "<Joystick>/button11",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Joystick",
+                    "action": "Pass",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "aefe5eff-d6ff-409a-896e-84498b847ca0",
+                    "path": "<Joystick>/button12",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Joystick",
+                    "action": "RampToggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "37492d26-3ed4-48da-984f-3fe332a1f9a4",
+                    "path": "<Joystick>/hat/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Joystick",
+                    "action": "PlaceNectar",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "31fc415e-8b35-4bdf-b6c7-9505b0c0c7d1",
+                    "path": "<Joystick>/hat/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Joystick",
+                    "action": "HumanNectar",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b964267c-ac77-41b3-8a00-cb7afd371a04",
+                    "path": "<Joystick>/hat/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Joystick",
+                    "action": "CameraCycle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "08652c86-75d0-4e86-b3be-f00414c561dd",
+                    "path": "<Joystick>/hat/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Joystick",
+                    "action": "Recenter",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }
@@ -847,6 +1177,17 @@
                 {
                     "devicePath": "<XRController>",
                     "isOptional": true,
+                    "isOR": false
+                }
+            ]
+        },
+        {
+            "name": "Joystick",
+            "bindingGroup": "Joystick",
+            "devices": [
+                {
+                    "devicePath": "<Joystick>",
+                    "isOptional": false,
                     "isOR": false
                 }
             ]

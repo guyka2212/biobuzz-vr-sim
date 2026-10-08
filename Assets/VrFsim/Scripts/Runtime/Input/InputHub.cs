@@ -6,10 +6,12 @@ using VrFsim.Settings;
 namespace VrFsim.Input
 {
     /// <summary>
-    /// Owns the control scheme. Works with any gamepad the Input System recognises as a
-    /// <c>Gamepad</c> (Xbox / XInput, DualShock 4, DualSense, Switch Pro, and a Logitech F310 with
-    /// its back switch set to X), plus keyboard as a fallback. Every action is rebindable; overrides
-    /// are stored in <see cref="ControlSettings.bindingOverridesJson"/>.
+    /// Owns the control scheme. Works with every controller at once: any gamepad the Input System
+    /// recognises as a <c>Gamepad</c> (Xbox / XInput, DualShock 4, DualSense, Switch Pro, Logitech in
+    /// X mode, and any Android / Quest gamepad over Bluetooth or USB), generic HID joysticks (Logitech
+    /// in D mode, other USB pads; DirectInput button order), VR controllers (Quest Touch, Index, Vive,
+    /// WMR) and the keyboard. Gamepad actions are rebindable (a joystick press rebinds the joystick
+    /// binding); overrides are stored in <see cref="ControlSettings.bindingOverridesJson"/>.
     /// </summary>
     public class InputHub : MonoBehaviour
     {
@@ -194,10 +196,19 @@ namespace VrFsim.Input
             string group = keyboard ? "Keyboard" : "Gamepad";
             int index = a.GetBindingIndex(InputBinding.MaskByGroup(group));
             if (index < 0) { done?.Invoke(false); return; }
+            int joyIndex = keyboard ? -1 : a.GetBindingIndex(InputBinding.MaskByGroup("Joystick"));
 
             map.Disable();
-            rebinding = a.PerformInteractiveRebinding(index)
-                .WithControlsHavingToMatchPath(keyboard ? "<Keyboard>" : "<Gamepad>")
+            var op = a.PerformInteractiveRebinding(index)
+                .WithControlsHavingToMatchPath(keyboard ? "<Keyboard>" : "<Gamepad>");
+            if (joyIndex >= 0)
+            {
+                // A generic joystick's press goes to the joystick binding, so a gamepad's stays intact.
+                op.WithControlsHavingToMatchPath("<Joystick>")
+                  .OnApplyBinding((o, path) =>
+                      a.ApplyBindingOverride(o.selectedControl?.device is Joystick ? joyIndex : index, path));
+            }
+            rebinding = op
                 .WithCancelingThrough("<Keyboard>/escape")
                 .OnMatchWaitForAnother(0.1f)
                 .OnComplete(op => FinishRebind(true, done))

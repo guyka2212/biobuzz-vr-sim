@@ -12,6 +12,7 @@ using UnityEngine.XR.Management;
 using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
 using UnityEditor.XR.OpenXR.Features;
+using UnityEngine.XR.OpenXR.Features.MetaQuestSupport;
 
 namespace VrFsim.EditorTools
 {
@@ -24,7 +25,18 @@ namespace VrFsim.EditorTools
         public const string MainScenePath = "Assets/VrFsim/Scenes/Main.unity";
         public const string LoadingScenePath = "Assets/VrFsim/Scenes/Loading.unity";
         /// <summary>Game version: the build, the installer and the GitHub release tag (v + this).</summary>
-        public const string Version = "0.1.0";
+        public const string Version = "0.2.0";
+        /// <summary>Android package name of the standalone Meta Quest build.</summary>
+        public const string AndroidPackage = "com.vrfsim.biobuzz";
+        const string QuestSplashPath = "Assets/VrFsim/Art/Branding/VrFsimQuestSplash.png";
+
+        // The controllers a Meta Quest headset has (Quest 2: Touch; Quest 3 / 3S: Touch Plus; Pro).
+        static readonly HashSet<string> QuestProfiles = new HashSet<string>
+        {
+            "OculusTouchControllerProfile",
+            "MetaQuestTouchPlusControllerProfile",
+            "MetaQuestTouchProControllerProfile",
+        };
 
         // Controller profiles for the PC headsets OpenXR runtimes commonly expose. Matched by type
         // name so a profile missing from a future OpenXR package version is skipped, not a compile error.
@@ -57,6 +69,7 @@ namespace VrFsim.EditorTools
         {
             ConfigurePlayer();
             ConfigureXR();
+            if (BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.Android, BuildTarget.Android)) ConfigureQuest();
             ConfigureRendering();
             CleanConfigObjects();
             EnsureMainScene();
@@ -135,6 +148,80 @@ namespace VrFsim.EditorTools
                 EditorUtility.SetDirty(feature);
             }
             EditorUtility.SetDirty(openXR);
+        }
+
+        /// <summary>
+        /// Standalone Meta Quest (Android) build: ARM64 + IL2CPP (Quest requires it), Vulkan, ASTC
+        /// textures, OpenXR with Meta Quest support, the Touch controller profiles, fixed foveated
+        /// rendering, and the logo as the system splash while the app starts. Needs Unity's
+        /// "Android Build Support" module. Does not change the PC build.
+        /// </summary>
+        public static void ConfigureQuest()
+        {
+            var android = NamedBuildTarget.Android;
+            PlayerSettings.SetApplicationIdentifier(android, AndroidPackage);
+            PlayerSettings.SetScriptingBackend(android, ScriptingImplementation.IL2CPP);
+            PlayerSettings.SetManagedStrippingLevel(android, ManagedStrippingLevel.Medium);
+            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+            PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel32;
+            PlayerSettings.Android.bundleVersionCode = VersionCode();
+            PlayerSettings.Android.applicationEntry = AndroidApplicationEntry.Activity;
+            PlayerSettings.Android.forceInternetPermission = true;   // loopback socket (RemoteGamepad)
+            PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
+            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.Vulkan });
+            PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeLeft;
+            EditorUserBuildSettings.androidBuildSubtarget = MobileTextureSubtarget.ASTC;
+
+            if (!EditorBuildSettings.TryGetConfigObject(XRGeneralSettings.k_SettingsKey, out XRGeneralSettingsPerBuildTarget perTarget))
+            {
+                Debug.LogWarning("[VrFsim] XR General Settings not found; open Project Settings > XR Plug-in Management once.");
+                return;
+            }
+            if (!perTarget.HasManagerSettingsForBuildTarget(BuildTargetGroup.Android))
+                perTarget.CreateDefaultManagerSettingsForBuildTarget(BuildTargetGroup.Android);
+            var general = perTarget.SettingsForBuildTarget(BuildTargetGroup.Android);
+            general.InitManagerOnStart = true;
+            var manager = general.Manager;
+            if (!manager.activeLoaders.Any(l => l != null && l.GetType().Name == "OpenXRLoader"))
+                XRPackageMetadataStore.AssignLoader(manager, "UnityEngine.XR.OpenXR.OpenXRLoader", BuildTargetGroup.Android);
+            EditorUtility.SetDirty(general);
+            EditorUtility.SetDirty(manager);
+            EditorUtility.SetDirty(perTarget);
+
+            FeatureHelpers.RefreshFeatures(BuildTargetGroup.Android);
+            var openXR = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android);
+            if (openXR == null) { Debug.LogWarning("[VrFsim] OpenXR settings for Android are unavailable."); return; }
+            openXR.renderMode = OpenXRSettings.RenderMode.SinglePassInstanced;   // multiview on Quest
+            openXR.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth16Bit;
+            foreach (var feature in openXR.GetFeatures<OpenXRInteractionFeature>())
+            {
+                feature.enabled = QuestProfiles.Contains(feature.GetType().Name);
+                EditorUtility.SetDirty(feature);
+            }
+            var quest = openXR.GetFeature<MetaQuestFeature>();
+            if (quest != null)
+            {
+                quest.enabled = true;
+                // The game never goes online, but Android needs the INTERNET permission for any
+                // socket, including the loopback port VrFsim Controller Connect's controller arrives on.
+                quest.ForceRemoveInternetPermission = false;
+                var splash = AssetDatabase.LoadAssetAtPath<Texture2D>(QuestSplashPath);
+                if (splash) quest.systemSplashScreen = splash;
+                EditorUtility.SetDirty(quest);
+            }
+            var foveation = openXR.GetFeature<FoveatedRenderingFeature>();
+            if (foveation != null) { foveation.enabled = true; EditorUtility.SetDirty(foveation); }
+            var refresh = openXR.GetFeature<VrFsim.VR.RefreshRateFeature>();
+            if (refresh != null) { refresh.enabled = true; EditorUtility.SetDirty(refresh); }
+            else Debug.LogWarning("[VrFsim] Refresh rate feature not registered yet; run Configure Project again.");
+            EditorUtility.SetDirty(openXR);
+        }
+
+        /// <summary>Android version code from <see cref="Version"/>: 1.2.3 becomes 10203.</summary>
+        static int VersionCode()
+        {
+            var p = Version.Split('.').Select(int.Parse).ToArray();
+            return p[0] * 10000 + (p.Length > 1 ? p[1] : 0) * 100 + (p.Length > 2 ? p[2] : 0);
         }
 
         const string VrPipelinePath = "Assets/Settings/Rendering/URP_Pipeline_VR.asset";

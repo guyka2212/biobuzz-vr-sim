@@ -24,7 +24,20 @@ find "$WORK/stage" -name "*.pdb" -delete
 powershell.exe -NoProfile -Command "Add-Type -AssemblyName System.IO.Compression.FileSystem; [IO.Compression.ZipFile]::CreateFromDirectory('$(cygpath -w "$WORK/stage")', '$(cygpath -w "$WORK/payload.zip")', [IO.Compression.CompressionLevel]::Optimal, \$false)"
 
 cat > "$WORK/BuildInfo.cs" <<CS
-namespace VrFsimSetup { static class BuildInfo { public const string Version = "$VERSION"; public const string RepoUrl = "$REPO"; } }
+namespace AppSetup
+{
+    static class BuildInfo
+    {
+        public const string AppName = "VrFsim";
+        public const string ExeName = "VrFsim.exe";
+        public const string UninstallId = "VrFsim";
+        public const string Version = "$VERSION";
+        public const string RepoUrl = "$REPO";
+        public const string Description = "VrFsim - FTC BIOBUZZ simulator in VR";
+        public const string Intro = "VrFsim is a PC VR practice simulator for FTC BIOBUZZ. It needs an OpenXR headset runtime "
+            + "(SteamVR, Meta Quest Link, ...). Without a headset it runs on the monitor.";
+    }
+}
 CS
 
 w() { cygpath -w "$1"; }
@@ -35,6 +48,6 @@ w() { cygpath -w "$1"; }
   -resource:"$(w "$WORK/payload.zip")",payload.zip \
   -resource:"$(w "$ROOT/Assets/VrFsim/Resources/Branding/VrFsimLogo.png")",logo.png \
   -r:System.IO.Compression.dll -r:System.IO.Compression.FileSystem.dll -r:System.Windows.Forms.dll -r:System.Drawing.dll \
-  "$(w "$ROOT/Tools/installer/VrFsimSetup.cs")" "$(w "$WORK/BuildInfo.cs")"
+  "$(w "$ROOT/Tools/installer/Setup.cs")" "$(w "$WORK/BuildInfo.cs")"
 
 echo "INSTALLER: $OUT ($(du -h "$OUT" | cut -f1), version $VERSION)"

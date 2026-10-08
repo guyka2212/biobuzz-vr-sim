@@ -38,6 +38,9 @@ No headset? The game also runs on a monitor. Hold the right mouse button to look
 
 ## Installing
 
+This is the **recommended** way to play: the game runs on your PC and you play in the
+headset through Quest Link, Air Link, SteamVR or another OpenXR runtime.
+
 1. **[Download VrFsim-Setup.exe](https://github.com/guyka2212/biobuzz-vr-sim/releases/latest/download/VrFsim-Setup.exe)** (about 32 MB; all versions are on the
    [Releases page](https://github.com/guyka2212/biobuzz-vr-sim/releases)).
 2. Run it. Windows may show *"Windows protected your PC"* because the installer is not
@@ -70,45 +73,100 @@ The refresh rate (72/90/120 Hz) is set in your VR runtime, not in the game. VrFs
 ## Setting up the controller
 
 Plug in the gamepad, or pair it over Bluetooth, **before** starting the game. Nothing else is needed.
+Every controller works at the same time, so you can switch between them freely:
 
-- **Logitech F310 / F710:** set the switch on the back or top to **X** (XInput). The D (DirectInput)
-  position is not a standard gamepad. FTC teams usually run their F310s in X mode too.
-- **PlayStation controllers** work over USB or Bluetooth. Steam Input is not required.
+- **Gamepads:** Xbox, PlayStation (DualShock 4 / DualSense), Switch Pro, Logitech, over USB or
+  Bluetooth. Steam Input is not required.
+- **Logitech F310 / F710:** works in both switch positions. **X** (XInput) is recommended (the
+  layout matches the table below exactly); in **D** mode it is read as a generic joystick.
+- **Other USB / Bluetooth pads** that Windows does not know as gamepads are read as generic
+  joysticks with the common button order (1 X, 2 A, 3 B, 4 Y, 5 LB, 6 RB, 7 LT, 8 RT, 9 Back,
+  10 Start, 11/12 stick clicks, D-pad on the hat). Rebind anything that lands wrong.
+- **VR controllers** (Quest Touch, Index, Vive, WMR) can drive too: see the VR column below.
 - Every button can be rebound in **Menu → Controls**, and the drive stick (left or right),
   deadzone, response curve and trigger threshold are in **Menu → Driving**.
 
 ### Default controls
 
-| Action | Gamepad | Keyboard |
-|---|---|---|
-| Drive / strafe | Left stick | W A S D |
-| Turn | Right stick X | ← → |
-| Tank control (left / right side) | Left Y / Right Y | W S / ↑ ↓ |
-| Intake (hold) | LT / L2 | Left Shift |
-| Fire launcher (hold) | RT / R2 | Space |
-| Outtake | B / ○ | O |
-| Box Tube: place POLLEN | LB / L1 | C |
-| Box Tube: place NECTAR | D-pad Up | X |
-| Human player: enter NECTAR | D-pad Down | N |
-| Slow mode (hold) | X / □ | P |
-| Flip robot front | Y / △ | F |
-| Butterfly shift (mecanum ↔ traction) | RB / R1 | B |
-| Ramp intake toggle | Right stick click | Z |
-| Pass to target | Left stick click | V |
-| Start match / next match | A / ✕ | Enter |
-| Reset match | Back / Share | R |
-| Menu (pauses) | Start / Options | Esc |
-| Next camera view | D-pad Right | L |
-| Recenter view | D-pad Left | Home |
+| Action | Gamepad | VR controllers (Quest Touch) | Keyboard |
+|---|---|---|---|
+| Drive / strafe | Left stick | Left thumbstick | W A S D |
+| Turn | Right stick X | Right thumbstick X | ← → |
+| Tank control (left / right side) | Left Y / Right Y | Left Y / Right Y | W S / ↑ ↓ |
+| Intake (hold) | LT / L2 | Left trigger | Left Shift |
+| Fire launcher (hold) | RT / R2 | Right trigger | Space |
+| Outtake | B / ○ | B | O |
+| Box Tube: place POLLEN | LB / L1 | Left grip | C |
+| Box Tube: place NECTAR | D-pad Up | Y | X |
+| Human player: enter NECTAR | D-pad Down | – | N |
+| Slow mode (hold) | X / □ | X | P |
+| Flip robot front | Y / △ | – | F |
+| Butterfly shift (mecanum ↔ traction) | RB / R1 | Right grip | B |
+| Ramp intake toggle | Right stick click | Right thumbstick click | Z |
+| Pass to target | Left stick click | Left thumbstick click | V |
+| Start match / next match | A / ✕ | A | Enter |
+| Reset match | Back / Share | (Menu → Restart match) | R |
+| Menu (pauses) | Start / Options | ≡ (left Menu button) | Esc |
+| Next camera view | D-pad Right | (Menu → Camera) | L |
+| Recenter view | D-pad Left | hold the Meta button | Home |
 
-Everything works from the gamepad alone. A keyboard is only a fallback.
+Everything works from the gamepad alone. A keyboard is only a fallback. The VR controllers cover
+driving and scoring; the few actions without a spare button are in the menu.
 - **Menu:** D-pad or stick to move, Left/Right to change a value, **A** to select, **B** to go
   back, **Start** to close. Text such as the robot name is typed on an on-screen keyboard with the
-  D-pad and A (a physical keyboard also types into it). You can also point a VR controller at
-  the menu and pull its trigger.
+  D-pad and A (a physical keyboard also types into it). With VR controllers: thumbstick to move,
+  **A/X** to select, **B/Y** to go back, **≡** to close.
 - **Free camera (Menu → Camera → View → Free):** the left stick flies, the right stick turns, and
   the triggers raise and lower the camera. The robot holds still until you switch back to a
   driving view (D-pad Right).
+
+## Playing on Meta Quest without a PC
+
+VrFsim also runs **standalone** on Meta Quest 3 / 3S / Pro / 2: no PC, no cable while playing.
+
+1. Turn on **developer mode** for the headset (Meta Horizon phone app → Devices → Headset settings
+   → Developer mode).
+2. On a Windows PC, download **[VrFsim-Quest-Setup.exe](https://github.com/guyka2212/biobuzz-vr-sim/releases/latest/download/VrFsim-Quest-Setup.exe)** (about 29 MB) and run it.
+   It is the installer for the headset: the game is inside it.
+3. Connect the headset to the PC with a USB-C cable. In the headset, accept **Allow USB
+   debugging** (tick *Always allow from this computer*).
+4. The first time only, VrFsim Quest Setup offers to download Google's Android tools (adb, about
+   7 MB), which it needs to talk to the headset. Then click **Install VrFsim on the headset**.
+   It starts the game when done. Unplug the cable.
+5. Later, in the headset: **Library → Unknown Sources → VrFsim**.
+
+(Developers: `Builds/VrFsim-Quest.apk` can also be installed with `Tools/quest-install.sh` or
+`adb install -r`.)
+
+Controllers on the Quest:
+
+- **Quest Touch controllers** drive the robot directly (VR column in the table above).
+- **A gamepad over Bluetooth** (the way Meta supports): headset **Settings → Devices → Bluetooth
+  → Pair**, then put the controller in pairing mode. Xbox and PlayStation controllers pair this way.
+- **A wired gamepad through a USB-C adapter** (USB-A female → USB-C male, "OTG"): the Quest's
+  Android usually recognises a USB gamepad, but Meta does not officially support it, so it depends
+  on the controller. It also takes the charging port. If the pad does nothing, use Bluetooth.
+
+On the Quest the game renders with fixed foveated rendering and asks for 90 Hz (Menu → Graphics
+→ Refresh rate: 72 / 90 / 120 Hz). Settings are saved on the headset.
+
+### Low-spec laptops only: VrFsim Controller Connect
+
+> **Not the recommended way to play.** If your PC can run Quest Link or SteamVR, use the
+> [PC installer](#installing). Controller Connect is only for laptops below the minimum requirements.
+
+The game runs on the headset (installed with VrFsim Quest Setup, above). The controller plugs into
+the laptop, and [VrFsim Controller Connect](https://github.com/guyka2212/controller-connect) sends it to the headset over the headset's USB-C
+cable, instead of a USB adapter on the headset. The cable also charges the headset.
+
+1. Install the game on the headset with VrFsim Quest Setup (above).
+2. Download **VrFsim-Controller-Connect-Setup.exe** from the
+   [Controller Connect releases](https://github.com/guyka2212/controller-connect/releases) and install it (desktop shortcut, no admin).
+3. Connect the headset by USB-C, open Controller Connect, click **Start VrFsim on the headset**,
+   plug the controller into the laptop and pick it in the list. The **Link** line turns green and
+   the game's Menu → Controls says *connected*. Keep Controller Connect open while you play.
+
+Details and source: [github.com/guyka2212/controller-connect](https://github.com/guyka2212/controller-connect).
 
 ## Playing
 
@@ -192,10 +250,15 @@ git clone https://github.com/guyka2212/biobuzz-vr-sim.git
 4. Installer: `Tools/make-installer.sh` packs the build into `Builds/VrFsim-Setup.exe` (one file,
    per-user install, desktop and Start menu shortcuts, uninstall entry). It uses only what ships
    with Windows (PowerShell and the .NET Framework C# compiler); the source is `Tools/installer/`.
-   The version comes from `ProjectSetup.Version`. Publish it as a GitHub release:
+   The version comes from `ProjectSetup.Version`.
+5. Meta Quest: menu **VrFsim → Build → Meta Quest (standalone)** (or `Tools/unity-batch.sh
+   VrFsim.EditorTools.BuildTool.BuildQuest`) makes `Builds/VrFsim-Quest.apk`; `Tools/quest-install.sh`
+   installs it on a USB-connected headset, and `Tools/make-quest-setup.sh` wraps it in
+   `Builds/VrFsim-Quest-Setup.exe` (the headset installer for players). Controller Connect is built
+   in its own repo (`build.sh`). Publish everything as a GitHub release:
 
 ```bash
-gh release create v0.1.0 Builds/VrFsim-Setup.exe --title "VrFsim 0.1.0"
+gh release create v0.2.0 Builds/VrFsim-Setup.exe Builds/VrFsim-Quest-Setup.exe Builds/VrFsim-Quest.apk ../../controller-connect/dist/VrFsim-Controller-Connect-Setup.exe --title "VrFsim 0.2.0"
 ```
 
 Other editor tools under **VrFsim → Setup**: *Configure Project* (OpenXR, controller
@@ -222,8 +285,9 @@ Assets/VrFsim/
   Resources/        input actions, material library, art slots
   Tests/            EditMode and PlayMode tests
   Resources/Branding/  logo sprites (loading screen, menu)   Art/Branding/  app icon
-Tools/              batch scripts (compile, test, capture, installer), Blender model scripts, logo generator
-  installer/        the Windows installer source (C#), its icon and manifest
+Tools/              batch scripts (compile, test, capture, installer, Quest install), Blender model scripts, logo generator
+  installer/        the Windows installer source (C#, shared with Controller Connect), icon, manifest
+  quest-setup/      VrFsim Quest Setup source (C#): installs the game on a USB-connected Quest
 Docs/               verified game facts and the dsim settings inventory
 ```
 

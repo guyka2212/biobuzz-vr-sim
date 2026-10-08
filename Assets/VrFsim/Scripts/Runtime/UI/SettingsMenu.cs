@@ -679,6 +679,10 @@ namespace VrFsim.UI
 
         void BuildControlsTab()
         {
+            if (RemoteGamepad.Instance)
+                Live(() => RemoteGamepad.Instance && RemoteGamepad.Instance.Connected
+                    ? "PC controller (VrFsim Controller Connect): connected."
+                    : "PC controller (VrFsim Controller Connect): not connected. Gamepads paired to the headset still work.");
             Header("Rebind controls");
             Info("Select a row and press A, then press the new button. Esc on a keyboard cancels.");
             var hub = InputHub.Instance;
@@ -740,6 +744,8 @@ namespace VrFsim.UI
             Toggle("Transition countdown", () => S.audio.voiceCues, v => S.audio.voiceCues = v);
         }
 
+        static readonly int[] QuestRates = { 72, 90, 120 };
+
         void BuildGraphicsTab()
         {
             Header("Graphics");
@@ -749,8 +755,22 @@ namespace VrFsim.UI
             Choice("Shadows", () => S.graphics.shadows, v => { S.graphics.shadows = v; S.graphics.preset = QualityPreset.Custom; });
             Choice("Moving-object shadows", () => S.graphics.dynamicShadows, v => { S.graphics.dynamicShadows = v; S.graphics.preset = QualityPreset.Custom; });
             Choice("Venue", () => S.graphics.venue, v => S.graphics.venue = v);
-            Slider("Desktop frame cap (no headset)", () => S.graphics.targetRefreshRate, v => S.graphics.targetRefreshRate = v, 60f, 144f, 1f, F0);
-            Info("In a headset the refresh rate is set by your VR runtime (SteamVR / Meta / WMR settings).");
+            if (Application.platform == RuntimePlatform.Android)
+            {
+                // Standalone Quest: the game picks the headset's refresh rate itself.
+                Stepper("Refresh rate", () => S.graphics.targetRefreshRate.ToString("0") + " Hz", d =>
+                {
+                    int i = Array.IndexOf(QuestRates, Mathf.RoundToInt(S.graphics.targetRefreshRate));
+                    if (i < 0) i = 1;
+                    S.graphics.targetRefreshRate = QuestRates[(i + d + QuestRates.Length) % QuestRates.Length];
+                });
+                Info("Quest 3 / 3S: 72, 90 or 120 Hz. Higher is smoother but uses more battery.");
+            }
+            else
+            {
+                Slider("Desktop frame cap (no headset)", () => S.graphics.targetRefreshRate, v => S.graphics.targetRefreshRate = v, 60f, 144f, 1f, F0);
+                Info("In a headset the refresh rate is set by your VR runtime (SteamVR / Meta / WMR settings).");
+            }
             Toggle("Reduced motion (comfort)", () => S.graphics.reducedMotion, v => S.graphics.reducedMotion = v);
             Toggle("Minimap on driver display", () => S.graphics.minimap, v => S.graphics.minimap = v);
             Choice("Performance overlay", () => S.graphics.perfOverlay, v => S.graphics.perfOverlay = v);

@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
@@ -142,7 +144,30 @@ namespace VrFsim.UI
             if (!es.TryGetComponent<InputSystemUIInputModule>(out var module)) module = es.gameObject.AddComponent<InputSystemUIInputModule>();
             module.AssignDefaultActions();
             module.xrTrackingOrigin = xrTrackingOrigin;
+            AddVrControllerNavigation(module);
             return es;
+        }
+
+        /// <summary>
+        /// The default UI actions do not navigate with VR controllers. Add them, so the menu works
+        /// with Quest Touch (or any VR) controllers alone: thumbstick moves, A/X selects, B/Y backs.
+        /// </summary>
+        static void AddVrControllerNavigation(InputSystemUIInputModule module)
+        {
+            var move = module.move?.action;
+            var submit = module.submit?.action;
+            var cancel = module.cancel?.action;
+            if (move == null || submit == null || cancel == null) return;
+            var map = move.actionMap;
+            bool wasEnabled = map.enabled;
+            if (wasEnabled) map.Disable();
+            if (!move.bindings.Any(b => b.path != null && b.path.Contains("XRController")))
+            {
+                move.AddBinding("<XRController>/primary2DAxis");
+                submit.AddBinding("<XRController>/primaryButton");
+                cancel.AddBinding("<XRController>/secondaryButton");
+            }
+            if (wasEnabled) map.Enable();
         }
     }
 }

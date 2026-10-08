@@ -26,6 +26,26 @@ namespace VrFsim
 
         void OnDestroy() => SettingsStore.Changed -= Apply;
 
+#if UNITY_ANDROID && !UNITY_EDITOR
+        static readonly System.Collections.Generic.List<XRDisplaySubsystem> displays = new System.Collections.Generic.List<XRDisplaySubsystem>();
+
+        /// <summary>
+        /// Standalone Quest: ask for the chosen refresh rate (Quest 3 / 3S offer 72, 90 and 120 Hz)
+        /// and use fixed foveated rendering to keep frames in budget.
+        /// </summary>
+        static void ApplyStandaloneHeadset(VisualSettings g)
+        {
+            VR.RefreshRateFeature.Request(g.targetRefreshRate);
+            SubsystemManager.GetSubsystems(displays);
+            foreach (var d in displays)
+            {
+                if (!d.running) continue;
+                d.foveatedRenderingLevel = g.preset == QualityPreset.High ? 0.33f : 0.66f;
+                d.foveatedRenderingFlags = XRDisplaySubsystem.FoveatedRenderingFlags.None;
+            }
+        }
+#endif
+
         void Apply(SimSettings s)
         {
             var g = s.graphics;
@@ -37,6 +57,9 @@ namespace VrFsim
             }
             if (XRSettings.enabled) XRSettings.eyeTextureResolutionScale = g.renderScale;
             Application.targetFrameRate = XRSettings.isDeviceActive ? -1 : Mathf.RoundToInt(g.targetRefreshRate);
+#if UNITY_ANDROID && !UNITY_EDITOR
+            ApplyStandaloneHeadset(g);
+#endif
 
             if (sun)
             {

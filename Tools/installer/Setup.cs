@@ -1,14 +1,15 @@
-// VrFsim installer. A self-contained Windows installer: the game build is embedded as payload.zip.
-// Built by Tools/make-installer.sh with the C# compiler that ships with Windows (.NET Framework 4),
-// so it needs nothing extra to build or run. C# 5 only (that compiler's language version).
+// Generic one-file Windows installer (used by VrFsim and VrFsim Controller Connect). The program
+// is embedded as payload.zip; names and texts come from BuildInfo, which the build script
+// generates. Built with the C# compiler that ships with Windows (.NET Framework 4), so it needs
+// nothing extra to build or run. C# 5 only (that compiler's language version).
 //
-// Installs per user (no admin prompt) to %LOCALAPPDATA%\Programs\VrFsim, adds desktop and Start
-// menu shortcuts and an Apps & features entry (uninstall).
+// Installs per user (no admin prompt) to %LOCALAPPDATA%\Programs\<AppName>, adds desktop and
+// Start menu shortcuts and an Apps & features entry (uninstall).
 //
 // Command line (for scripted installs and tests):
 //   /S            silent, no window          /D=<folder>    install folder
 //   /noshortcuts  skip shortcuts             /noregister    skip the Apps & features entry
-//   /nolaunch     do not start the game after a silent install
+//   /nolaunch     do not start the program after a silent install
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -19,13 +20,13 @@ using System.Threading;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
-namespace VrFsimSetup
+namespace AppSetup
 {
     static class Program
     {
-        public const string AppName = "VrFsim";
-        public const string ExeName = "VrFsim.exe";
-        const string UninstallKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\VrFsim";
+        public const string AppName = BuildInfo.AppName;
+        public const string ExeName = BuildInfo.ExeName;
+        const string UninstallKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\" + BuildInfo.UninstallId;
 
         [STAThread]
         static int Main(string[] args)
@@ -51,7 +52,7 @@ namespace VrFsimSetup
                 }
                 catch (Exception e)
                 {
-                    File.WriteAllText(Path.Combine(Path.GetTempPath(), "VrFsim-Setup.log"), e.ToString());
+                    File.WriteAllText(Path.Combine(Path.GetTempPath(), BuildInfo.UninstallId + "-Setup.log"), e.ToString());
                     return 1;
                 }
             }
@@ -67,7 +68,7 @@ namespace VrFsimSetup
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", AppName);
         }
 
-        /// <summary>The game always gets its own folder named VrFsim, so uninstalling can remove it whole.</summary>
+        /// <summary>The program always gets its own folder named AppName, so uninstalling can remove it whole.</summary>
         public static string NormalizeDir(string dir)
         {
             dir = Path.GetFullPath(dir.Trim()).TrimEnd('\\');
@@ -86,18 +87,18 @@ namespace VrFsimSetup
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), AppName + ".lnk");
         }
 
-        /// <summary>Installs the embedded build. Returns the game's exe path. Progress: 0..1.</summary>
+        /// <summary>Installs the embedded program. Returns its exe path. Progress: 0..1.</summary>
         public static string Install(string dir, bool desktop, bool startMenu, bool register, Action<float, string> progress)
         {
             dir = NormalizeDir(dir);
             string exe = Path.Combine(dir, ExeName);
 
-            foreach (var p in Process.GetProcessesByName(AppName))
+            foreach (var p in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(ExeName)))
             {
                 string path = null;
                 try { path = p.MainModule.FileName; } catch { }
                 if (path == null || string.Equals(path, exe, StringComparison.OrdinalIgnoreCase))
-                    throw new InvalidOperationException("VrFsim is running. Close the game, then install again.");
+                    throw new InvalidOperationException(AppName + " is running. Close it, then install again.");
             }
 
             if (Directory.Exists(dir))
@@ -108,7 +109,7 @@ namespace VrFsimSetup
                 if (!empty)
                 {
                     Report(progress, 0f, "Removing the previous version...");
-                    Directory.Delete(dir, true);   // an earlier VrFsim install (it has VrFsim.exe)
+                    Directory.Delete(dir, true);   // an earlier install (it has our exe)
                 }
             }
             Directory.CreateDirectory(dir);
@@ -116,7 +117,7 @@ namespace VrFsimSetup
             long bytes = 0;
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("payload.zip"))
             {
-                if (stream == null) throw new InvalidOperationException("This installer is damaged (no game data inside).");
+                if (stream == null) throw new InvalidOperationException("This installer is damaged (no program data inside).");
                 using (var zip = new ZipArchive(stream, ZipArchiveMode.Read))
                 {
                     int n = zip.Entries.Count, i = 0;
@@ -125,7 +126,7 @@ namespace VrFsimSetup
                     {
                         string target = Path.GetFullPath(Path.Combine(dir, entry.FullName));
                         if (!target.StartsWith(root, StringComparison.OrdinalIgnoreCase))
-                            throw new InvalidOperationException("Bad path in game data: " + entry.FullName);
+                            throw new InvalidOperationException("Bad path in installer data: " + entry.FullName);
                         if (string.IsNullOrEmpty(entry.Name)) Directory.CreateDirectory(target);
                         else
                         {
@@ -134,17 +135,17 @@ namespace VrFsimSetup
                             bytes += entry.Length;
                         }
                         i++;
-                        if (i % 8 == 0 || i == n) Report(progress, 0.95f * i / n, "Copying game files... " + (100 * i / n) + "%");
+                        if (i % 8 == 0 || i == n) Report(progress, 0.95f * i / n, "Copying files... " + (100 * i / n) + "%");
                     }
                 }
             }
-            if (!File.Exists(exe)) throw new InvalidOperationException("The game data does not contain " + ExeName + ".");
+            if (!File.Exists(exe)) throw new InvalidOperationException("The installer data does not contain " + ExeName + ".");
 
             Report(progress, 0.97f, "Creating shortcuts...");
             if (desktop) MakeShortcut(DesktopShortcut(), exe, dir);
             if (startMenu) MakeShortcut(StartMenuShortcut(), exe, dir);
             if (register) Register(dir, exe, bytes);
-            Report(progress, 1f, "VrFsim is installed.");
+            Report(progress, 1f, AppName + " is installed.");
             return exe;
         }
 
@@ -163,7 +164,7 @@ namespace VrFsimSetup
             t.InvokeMember("TargetPath", BindingFlags.SetProperty, null, lnk, new object[] { exe });
             t.InvokeMember("WorkingDirectory", BindingFlags.SetProperty, null, lnk, new object[] { dir });
             t.InvokeMember("IconLocation", BindingFlags.SetProperty, null, lnk, new object[] { exe + ",0" });
-            t.InvokeMember("Description", BindingFlags.SetProperty, null, lnk, new object[] { "VrFsim - FTC BIOBUZZ simulator in VR" });
+            t.InvokeMember("Description", BindingFlags.SetProperty, null, lnk, new object[] { BuildInfo.Description });
             t.InvokeMember("Save", BindingFlags.InvokeMethod, null, lnk, null);
         }
 
@@ -176,7 +177,7 @@ namespace VrFsimSetup
             {
                 key.SetValue("DisplayName", AppName);
                 key.SetValue("DisplayVersion", BuildInfo.Version);
-                key.SetValue("Publisher", AppName);
+                key.SetValue("Publisher", "VrFsim");
                 key.SetValue("DisplayIcon", exe + ",0");
                 key.SetValue("InstallLocation", dir);
                 key.SetValue("UninstallString", uninstall);
@@ -201,6 +202,7 @@ namespace VrFsimSetup
 
     class SetupForm : Form
     {
+        const string AppName = BuildInfo.AppName;
         static readonly Color Dark = Color.FromArgb(0x14, 0x16, 0x1A);
         static readonly Color Accent = Color.FromArgb(0xFF, 0xB4, 0x00);
 
@@ -213,7 +215,7 @@ namespace VrFsimSetup
 
         public SetupForm(string dir)
         {
-            Text = "VrFsim " + BuildInfo.Version + " Setup";
+            Text = AppName + " " + BuildInfo.Version + " Setup";
             AutoScaleMode = AutoScaleMode.Dpi;
             AutoScaleDimensions = new SizeF(96f, 96f);
             ClientSize = new Size(560, 430);
@@ -230,8 +232,7 @@ namespace VrFsimSetup
 
             var intro = new Label
             {
-                Text = "VrFsim is a PC VR practice simulator for FTC BIOBUZZ. It needs an OpenXR headset runtime "
-                     + "(SteamVR, Meta Quest Link, ...). Without a headset it runs on the monitor.",
+                Text = BuildInfo.Intro,
                 Bounds = new Rectangle(20, 162, 520, 40),
             };
             Controls.Add(intro);
@@ -241,7 +242,7 @@ namespace VrFsimSetup
             browse = new Button { Text = "Browse...", Bounds = new Rectangle(450, 230, 90, 28) };
             browse.Click += delegate
             {
-                using (var d = new FolderBrowserDialog { Description = "Choose where to install VrFsim (a VrFsim folder is created inside)." })
+                using (var d = new FolderBrowserDialog { Description = "Choose where to install " + AppName + " (a folder named " + AppName + " is created inside)." })
                     if (d.ShowDialog(this) == DialogResult.OK) folder.Text = Program.NormalizeDir(d.SelectedPath);
             };
             Controls.Add(folder);
@@ -249,7 +250,7 @@ namespace VrFsimSetup
 
             desktop = new CheckBox { Text = "Create a desktop shortcut", Checked = true, Bounds = new Rectangle(20, 268, 260, 24) };
             startMenu = new CheckBox { Text = "Add to the Start menu", Checked = true, Bounds = new Rectangle(20, 292, 260, 24) };
-            launch = new CheckBox { Text = "Start VrFsim when done", Checked = true, Bounds = new Rectangle(290, 268, 250, 24) };
+            launch = new CheckBox { Text = "Start " + AppName + " when done", Checked = true, Bounds = new Rectangle(290, 268, 250, 24) };
             Controls.Add(desktop);
             Controls.Add(startMenu);
             Controls.Add(launch);
@@ -297,7 +298,7 @@ namespace VrFsimSetup
         void Done(string exe)
         {
             installedExe = exe;
-            status.Text = "VrFsim is installed." + (desktop.Checked ? " Look for the VrFsim icon on your desktop." : "");
+            status.Text = AppName + " is installed." + (desktop.Checked ? " Look for its icon on your desktop." : "");
             install.Text = "Finish";
             install.Enabled = true;
             close.Visible = false;
@@ -306,7 +307,7 @@ namespace VrFsimSetup
         void Failed(string message)
         {
             status.Text = "Install failed.";
-            MessageBox.Show(this, message, "VrFsim Setup", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(this, message, AppName + " Setup", MessageBoxButtons.OK, MessageBoxIcon.Error);
             foreach (Control c in new Control[] { install, browse, close, folder, desktop, startMenu }) c.Enabled = true;
         }
 
@@ -315,7 +316,7 @@ namespace VrFsimSetup
             if (launch.Checked)
             {
                 try { Program.Launch(installedExe); }
-                catch (Exception e) { MessageBox.Show(this, e.Message, "VrFsim Setup", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
+                catch (Exception e) { MessageBox.Show(this, e.Message, AppName + " Setup", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
             }
             Close();
         }

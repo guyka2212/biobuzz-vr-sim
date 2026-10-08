@@ -28,6 +28,7 @@ namespace VrFsim
             SimWorld.Field = fieldRoot ? fieldRoot.Rebind() : FieldBuilder.Build(null, MaterialLibrary.Get(), FieldArt.Load());
 
             Make<InputHub>("Input");
+            if (RemoteGamepad.ShouldRun) Make<RemoteGamepad>("Remote Gamepad");   // VrFsim Controller Connect (low-spec PCs)
             var view = Make<ViewManager>("View");
             UiKit.EnsureEventSystem(view.Origin.transform);
             Make<MatchController>("Match");
