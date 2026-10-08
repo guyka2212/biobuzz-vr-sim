@@ -55,9 +55,27 @@ namespace VrFsim.EditorTools
             ConfigureLighting();
             Directory.CreateDirectory(Path.GetDirectoryName(ProjectSetup.MainScenePath));
             EditorSceneManager.SaveScene(scene, ProjectSetup.MainScenePath);
-            EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ProjectSetup.MainScenePath, true) };
+            ProjectSetup.SetBuildScenes();
             AssetDatabase.SaveAssets();
             Debug.Log("[VrFsim] Main scene built.");
+        }
+
+        /// <summary>
+        /// The Loading scene: one object; <see cref="LoadingScreen"/> builds its camera and panel at
+        /// runtime. No lights, no skybox, no baked data, so it opens instantly.
+        /// </summary>
+        [MenuItem("VrFsim/Setup/Build Loading Scene")]
+        public static void BuildLoadingScene()
+        {
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            RenderSettings.skybox = null;
+            RenderSettings.ambientMode = AmbientMode.Flat;
+            RenderSettings.ambientLight = Color.black;
+            new GameObject("VrFsim Loading").AddComponent<LoadingScreen>();
+            EditorSceneManager.SaveScene(scene, ProjectSetup.LoadingScenePath);
+            ProjectSetup.SetBuildScenes();
+            AssetDatabase.SaveAssets();
+            Debug.Log("[VrFsim] Loading scene built.");
         }
 
         [MenuItem("VrFsim/Setup/Bake Lighting")]

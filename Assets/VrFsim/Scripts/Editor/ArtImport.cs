@@ -13,6 +13,37 @@ namespace VrFsim.EditorTools
     public class ArtImport : AssetPostprocessor
     {
         const string ModelsDir = "Assets/VrFsim/Art/Models";
+        public const string BrandingSpritesDir = "Assets/VrFsim/Resources/Branding";
+        public const string IconPath = "Assets/VrFsim/Art/Branding/VrFsimIcon.png";
+
+        /// <summary>
+        /// Logo images are UI sprites seen at an angle in a headset, so they keep mipmaps and
+        /// trilinear filtering (no shimmering) and high-quality compression (crisp edges).
+        /// </summary>
+        void OnPreprocessTexture()
+        {
+            var ti = (TextureImporter)assetImporter;
+            if (assetPath.StartsWith(BrandingSpritesDir))
+            {
+                ti.textureType = TextureImporterType.Sprite;
+                ti.spriteImportMode = SpriteImportMode.Single;
+                ti.alphaIsTransparency = true;
+                ti.mipmapEnabled = true;
+                ti.filterMode = FilterMode.Trilinear;
+                ti.wrapMode = TextureWrapMode.Clamp;
+                ti.maxTextureSize = 2048;
+                ti.textureCompression = TextureImporterCompression.CompressedHQ;
+            }
+            else if (assetPath == IconPath)
+            {
+                ti.textureType = TextureImporterType.Default;
+                ti.alphaIsTransparency = true;
+                ti.mipmapEnabled = false;
+                ti.wrapMode = TextureWrapMode.Clamp;
+                ti.maxTextureSize = 1024;
+                ti.textureCompression = TextureImporterCompression.Uncompressed;
+            }
+        }
 
         void OnPreprocessModel()
         {

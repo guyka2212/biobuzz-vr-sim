@@ -127,7 +127,7 @@ namespace VrFsim.VR
         /// device. A PC VR runtime can be installed and selected with no headset connected; then
         /// the game must behave as a desktop game, not wait for tracking that never comes.
         /// </summary>
-        static bool HeadsetRunning()
+        public static bool HeadsetRunning()
         {
             if (!XRSettings.isDeviceActive) return false;
             SubsystemManager.GetSubsystems(displays);

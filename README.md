@@ -1,5 +1,7 @@
 # VrFsim — BIOBUZZ VR driving simulator
 
+<p align="center"><img src="Docs/images/vrfsim-logo.png" alt="VrFsim — FTC simulator in VR" width="600"></p>
+
 VrFsim is a PC VR practice simulator for the *FIRST* Tech Challenge 2026–27 game, **BIOBUZZ**.
 You put on a PC VR headset and stand at the driver station in the ALLIANCE AREA, as a real
 DRIVER does. Then you drive a simulated FTC robot on a full-size field with an ordinary gamepad.
@@ -158,7 +160,8 @@ git clone https://github.com/guyka2212/biobuzz-vr-sim.git
 
 1. Open the `biobuzz-vr-sim` folder with **Unity 6000.5.8f1** from Unity Hub.
 2. Open `Assets/VrFsim/Scenes/Main.unity` and press Play. The game runs in the editor with
-   or without a headset.
+   or without a headset. (The built game starts on `Loading.unity`, which shows the logo and a
+   progress bar while Main loads.)
 3. Build: menu **VrFsim → Build → Windows** (output `Builds/VrFsim/VrFsim.exe`), or headless:
 
 ```bash
@@ -166,8 +169,8 @@ git clone https://github.com/guyka2212/biobuzz-vr-sim.git
 ```
 
 Other editor tools under **VrFsim → Setup**: *Configure Project* (OpenXR, controller
-profiles, URP settings), *Build Scene* (regenerates the Main scene from code), and *Bake
-Lighting*.
+profiles, URP settings, app icon), *Build Scene* (regenerates the Main scene from code), *Build
+Loading Scene*, and *Bake Lighting*.
 
 ### Tests
 
@@ -188,7 +191,8 @@ Assets/VrFsim/
   Art/Models/       Blender FBX models          Materials/  shared materials
   Resources/        input actions, material library, art slots
   Tests/            EditMode and PlayMode tests
-Tools/              batch scripts (compile, test, capture) and Blender model scripts
+  Resources/Branding/  logo sprites (loading screen, menu)   Art/Branding/  app icon
+Tools/              batch scripts (compile, test, capture), Blender model scripts, logo generator
 Docs/               verified game facts and the dsim settings inventory
 ```
 
@@ -235,6 +239,8 @@ visuals; every collider comes from `FieldSpec`, so physics never depends on the 
 
 - Settings and feature reference: [dsim](https://github.com/genius0412/dsim) by Dohun Kim
   (PolyForm Noncommercial). No dsim code or assets are used; VrFsim is an independent C# implementation.
+- Logo font: [Chakra Petch](https://fonts.google.com/specimen/Chakra+Petch) (SIL Open Font
+  License), rendered into the logo images.
 - Game rules and field dimensions: *FIRST* Tech Challenge BIOBUZZ Competition Manual and Event
   Field Setup Guide. Field models are original Blender models built from published dimensions.
 - "FIRST", "FIRST Tech Challenge", "FTC", "BIOBUZZ" and "RTX" are trademarks of their respective

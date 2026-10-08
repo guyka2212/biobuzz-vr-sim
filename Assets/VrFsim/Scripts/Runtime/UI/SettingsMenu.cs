@@ -147,10 +147,20 @@ namespace VrFsim.UI
             var bg = UiKit.Box(canvas.transform, "Bg", UiKit.Bg);
             UiKit.Fill(bg.rectTransform);
 
-            title = UiKit.Text(canvas.transform, "Title", "VrFsim  -  BIOBUZZ settings", 34, UiKit.TextMain);
+            // Header: the VrFsim logo, then the page name.
+            var logo = UiKit.Rect(canvas.transform, "Logo").gameObject.AddComponent<Image>();
+            logo.sprite = Resources.Load<Sprite>("Branding/VrFsimLogoCompact");
+            logo.preserveAspect = true;
+            logo.raycastTarget = false;
+            var lrt = logo.rectTransform;
+            lrt.anchorMin = lrt.anchorMax = lrt.pivot = new Vector2(0, 1);
+            lrt.sizeDelta = new Vector2(200, 54); lrt.anchoredPosition = new Vector2(20, -12);
+
+            title = UiKit.Text(canvas.transform, "Title", "BIOBUZZ settings", 34, UiKit.TextMain);
             var trt = title.rectTransform;
             trt.anchorMin = new Vector2(0, 1); trt.anchorMax = new Vector2(1, 1); trt.pivot = new Vector2(0.5f, 1);
-            trt.sizeDelta = new Vector2(-40, 54); trt.anchoredPosition = new Vector2(0, -14);
+            trt.offsetMin = new Vector2(240, -68); trt.offsetMax = new Vector2(-20, -14);
+            title.alignment = TextAlignmentOptions.MidlineLeft;
 
             tabColumn = UiKit.Rect(canvas.transform, "Tabs");
             tabColumn.anchorMin = new Vector2(0, 0); tabColumn.anchorMax = new Vector2(0, 1); tabColumn.pivot = new Vector2(0, 1);

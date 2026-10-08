@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/VrFsim/Scenes/Loading.unity
+    guid: 497bfb7396b943a4e999f4c388ac7778
+  - enabled: 1
     path: Assets/VrFsim/Scenes/Main.unity
     guid: fda7f716d8b6cfb46a86b6ec319c064c
   m_configObjects:

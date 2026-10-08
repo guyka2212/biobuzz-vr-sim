@@ -22,6 +22,7 @@ namespace VrFsim.EditorTools
     public static class ProjectSetup
     {
         public const string MainScenePath = "Assets/VrFsim/Scenes/Main.unity";
+        public const string LoadingScenePath = "Assets/VrFsim/Scenes/Loading.unity";
 
         // Controller profiles for the PC headsets OpenXR runtimes commonly expose. Matched by type
         // name so a profile missing from a future OpenXR package version is skipped, not a compile error.
@@ -57,6 +58,7 @@ namespace VrFsim.EditorTools
             ConfigureRendering();
             CleanConfigObjects();
             EnsureMainScene();
+            SetBuildScenes();
             EditorSceneManager.playModeStartScene = null;   // Play uses the open scene; tests use their own
             AssetDatabase.SaveAssets();
             Debug.Log("[VrFsim] Project configured for PC VR (OpenXR, Standalone).");
@@ -74,6 +76,8 @@ namespace VrFsim.EditorTools
             PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.Standalone, ManagedStrippingLevel.Medium);
             PlayerSettings.stripEngineCode = true;
             PlayerSettings.SplashScreen.show = false;
+            var icon = AssetDatabase.LoadAssetAtPath<Texture2D>(ArtImport.IconPath);
+            if (icon) PlayerSettings.SetIcons(NamedBuildTarget.Unknown, new[] { icon }, IconKind.Any);
             PlayerSettings.runInBackground = true;
             PlayerSettings.visibleInBackground = true;
             PlayerSettings.fullScreenMode = FullScreenMode.Windowed;
@@ -187,7 +191,15 @@ namespace VrFsim.EditorTools
                 var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
                 EditorSceneManager.SaveScene(scene, MainScenePath);
             }
-            EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(MainScenePath, true) };
+        }
+
+        /// <summary>The build starts on the Loading scene (logo + progress bar), which loads Main.</summary>
+        public static void SetBuildScenes()
+        {
+            var scenes = new List<EditorBuildSettingsScene>();
+            if (File.Exists(LoadingScenePath)) scenes.Add(new EditorBuildSettingsScene(LoadingScenePath, true));
+            scenes.Add(new EditorBuildSettingsScene(MainScenePath, true));
+            EditorBuildSettings.scenes = scenes.ToArray();
         }
     }
 }

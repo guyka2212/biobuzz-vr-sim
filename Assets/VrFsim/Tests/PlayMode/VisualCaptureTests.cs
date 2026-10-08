@@ -117,6 +117,21 @@ namespace VrFsim.Tests
             }
         }
 
+        [UnityTest, Explicit("Renders screenshots; run with Tools/unity-capture.sh")]
+        public IEnumerator CaptureLoading()
+        {
+            SettingsStore.UseTransient(new SimSettings());
+            SimWorld.Field = null;
+            SceneManager.LoadScene("Loading");
+            float end = Time.realtimeSinceStartup + 0.8f;   // mid-load: logo, bar part-way
+            while (Time.realtimeSinceStartup < end) yield return null;
+            string dir = Path.Combine(Application.dataPath, "../Logs/Captures");
+            Directory.CreateDirectory(dir);
+            var cam = Camera.main;
+            Shot(cam, dir, "00_loading", cam.transform.position, cam.transform.rotation);
+            Assert.Pass("Captured to " + dir);
+        }
+
         static void Shot(Camera cam, string dir, string name, Vector3 pos, Quaternion rot)
         {
             cam.transform.SetPositionAndRotation(pos, rot);

@@ -62,6 +62,27 @@ namespace VrFsim.Tests
         }
 
         [UnityTest]
+        public IEnumerator LoadingScreen_ShowsLogoThenOpensMain()
+        {
+            Time.timeScale = 1f;
+            SettingsStore.UseTransient(new SimSettings());
+            SimWorld.Field = null;
+            SceneManager.LoadScene("Loading");
+            yield return null;
+            var screen = Object.FindAnyObjectByType<LoadingScreen>();
+            Assert.IsNotNull(screen, "Loading scene has the loading screen");
+            var logo = screen.GetComponentsInChildren<UnityEngine.UI.Image>().FirstOrDefault(i => i.name == "Logo");
+            Assert.IsNotNull(logo && logo.sprite, "logo sprite loaded from Resources/Branding");
+
+            float end = Time.realtimeSinceStartup + 20f;
+            while (SceneManager.GetActiveScene().name != "Main" && Time.realtimeSinceStartup < end) yield return null;
+            Assert.AreEqual("Main", SceneManager.GetActiveScene().name, "loading screen hands over to Main");
+            yield return null;
+            Assert.IsNotNull(MatchController.Instance, "game booted after loading");
+            Assert.IsNull(Object.FindAnyObjectByType<LoadingScreen>(), "loading screen is gone");
+        }
+
+        [UnityTest]
         public IEnumerator Boot_StagesFieldPerManual()
         {
             var s = new SimSettings();
