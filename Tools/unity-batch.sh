@@ -13,10 +13,10 @@ args=(-batchmode -quit -projectPath "$ROOT" -logFile "$LOG")
 [ "${NOGRAPHICS:-1}" = "1" ] && args+=(-nographics)
 [ $# -ge 1 ] && args+=(-executeMethod "$1")
 
-"$UNITY_EXE" "${args[@]}"
+"$UNITY_EXE" "${args[@]}" > "$ROOT/Logs/batch-stdout.log" 2>&1
 code=$?
 
-if [ $code -ne 0 ] && grep -q "Multiple Unity instances cannot open the same project" "$LOG" 2>/dev/null; then
+if [ $code -ne 0 ] && grep -qs "Multiple Unity instances cannot open the same project" "$LOG" "$ROOT/Logs/batch-stdout.log"; then
   echo "UNITY: the project is open in the Unity Editor - close it to run batch jobs"; exit 2
 fi
 

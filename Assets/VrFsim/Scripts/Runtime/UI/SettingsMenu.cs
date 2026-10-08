@@ -80,7 +80,6 @@ namespace VrFsim.UI
             open = v;
             canvas.gameObject.SetActive(v);
             if (InputHub.Instance) InputHub.Instance.DrivingSuppressed = v;
-            ControllerPointer.Visible = v;
             Time.timeScale = v ? 0f : 1f;
             if (v)
             {

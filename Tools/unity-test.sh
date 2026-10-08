@@ -8,9 +8,9 @@ PLATFORM="${1:-EditMode}"
 RESULTS="$ROOT/Logs/test-results-$PLATFORM.xml"
 rm -f "$RESULTS"
 "$UNITY_EXE" -batchmode -nographics -projectPath "$ROOT" -runTests -testPlatform "$PLATFORM" \
-  -testResults "$RESULTS" -logFile "$ROOT/Logs/test.log"
+  -testResults "$RESULTS" -logFile "$ROOT/Logs/test.log" > "$ROOT/Logs/test-stdout.log" 2>&1
 code=$?
-if [ $code -ne 0 ] && grep -q "Multiple Unity instances cannot open the same project" "$ROOT/Logs/test.log" 2>/dev/null; then
+if [ $code -ne 0 ] && grep -qs "Multiple Unity instances cannot open the same project" "$ROOT/Logs/test.log" "$ROOT/Logs/test-stdout.log"; then
   echo "UNITY: the project is open in the Unity Editor - close it to run batch jobs"; exit 2
 fi
 if [ ! -f "$RESULTS" ]; then

@@ -119,7 +119,6 @@ namespace VrFsim.VR
             tpd.positionInput = new InputActionProperty(new InputAction(name + "Pos", binding: $"<XRController>{hand}/devicePosition"));
             tpd.rotationInput = new InputActionProperty(new InputAction(name + "Rot", binding: $"<XRController>{hand}/deviceRotation"));
             tpd.trackingStateInput = new InputActionProperty(new InputAction(name + "State", binding: $"<XRController>{hand}/trackingState"));
-            go.AddComponent<ControllerPointer>();
             return go.transform;
         }
 

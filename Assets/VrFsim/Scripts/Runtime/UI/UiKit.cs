@@ -34,7 +34,6 @@ namespace VrFsim.UI
             go.GetComponent<CanvasScaler>().dynamicPixelsPerUnit = 3f;
             if (interactive)
             {
-                go.AddComponent<TrackedDeviceRaycaster>();
                 go.AddComponent<GraphicRaycaster>();
             }
             return canvas;
