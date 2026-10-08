@@ -20,6 +20,7 @@ namespace VrFsim.Tests
         {
             var go = new GameObject("Remote Gamepad");
             var remote = go.AddComponent<RemoteGamepad>();
+            cleanup = go;
             yield return null;
 
             using (var client = new TcpClient())
@@ -34,7 +35,7 @@ namespace VrFsim.Tests
                 while (got < 2) { int n = stream.Read(ack, got, 2 - got); if (n <= 0) break; got += n; }
                 Assert.AreEqual("OK", System.Text.Encoding.ASCII.GetString(ack), "game acknowledges Controller Connect");
                 ushort buttons = (ushort)((1 << (int)GamepadButton.South) | (1 << (int)GamepadButton.Start) | (1 << (int)GamepadButton.DpadUp));
-                var packet = RemoteGamepad.Encode(buttons, new Vector2(0.5f, -1f), new Vector2(0f, 0.25f), 0f, 1f);
+                var packet = RemoteGamepad.Encode(buttons, new Vector2(0.6f, -0.8f), new Vector2(0f, 0.25f), 0f, 1f);   // full tilt, down-right
                 stream.Write(packet, 0, packet.Length);
 
                 Gamepad pad = null;
@@ -50,14 +51,23 @@ namespace VrFsim.Tests
                 Assert.IsTrue(pad.dpad.up.isPressed, "D-pad up");
                 Assert.IsFalse(pad.buttonEast.isPressed, "B not pressed");
                 Assert.AreEqual(1f, pad.rightTrigger.ReadValue(), 0.01f);
-                Assert.AreEqual(-1f, pad.leftStick.ReadValue().y, 0.02f);
-                Assert.Greater(pad.leftStick.ReadValue().x, 0.3f);
+                Assert.AreEqual(-0.8f, pad.leftStick.ReadValue().y, 0.03f);
+                Assert.AreEqual(0.6f, pad.leftStick.ReadValue().x, 0.03f);
             }
 
             // Disconnect removes the device again.
             for (int i = 0; i < 120 && Remote() != null; i++) yield return null;
             Assert.IsNull(Remote(), "virtual gamepad removed after Controller Connect disconnects");
-            Object.Destroy(go);
+        }
+
+        GameObject cleanup;
+
+        /// <summary>Stop the listener and drop the virtual gamepad even when an assert fails.</summary>
+        [UnityTearDown]
+        public IEnumerator TearDown()
+        {
+            if (cleanup) Object.Destroy(cleanup);
+            cleanup = null;
             yield return null;
         }
 
