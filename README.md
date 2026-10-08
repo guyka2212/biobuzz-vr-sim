@@ -124,6 +124,16 @@ driving and scoring; the few actions without a spare button are in the menu.
 
 VrFsim also runs **standalone** on Meta Quest 3 / 3S / Pro / 2: no PC, no cable while playing.
 
+<p>
+  <a href="https://github.com/guyka2212/biobuzz-vr-sim/releases/latest/download/VrFsim-Quest-Setup.exe"><img src="https://img.shields.io/badge/Install%20on%20the%20headset-VrFsim%20Quest%20Setup-FFB400?style=for-the-badge&labelColor=14161A" alt="Download VrFsim Quest Setup (installs the game on the headset)"></a>
+  &nbsp;
+  <a href="https://github.com/guyka2212/controller-connect/releases/latest/download/VrFsim-Controller-Connect-Setup.exe"><img src="https://img.shields.io/badge/Controller%20app-Controller%20Connect-8A8F98?style=for-the-badge&labelColor=14161A" alt="Download VrFsim Controller Connect (controller app)"></a>
+</p>
+
+**VrFsim Quest Setup** installs the game on the headset. **Controller Connect** is optional and
+only for laptops that can't run Quest Link: it sends a controller plugged into the laptop to the
+headset over the USB cable ([details](#low-spec-laptops-only-vrfsim-controller-connect)).
+
 1. Turn on **developer mode** for the headset (Meta Horizon phone app → Devices → Headset settings
    → Developer mode).
 2. On a Windows PC, download **[VrFsim-Quest-Setup.exe](https://github.com/guyka2212/biobuzz-vr-sim/releases/latest/download/VrFsim-Quest-Setup.exe)** (about 29 MB) and run it.
