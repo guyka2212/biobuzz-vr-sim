@@ -136,7 +136,7 @@ namespace VrFsimQuestSetup
                     Ui(delegate { Set(headsetStatus, "Android tools (adb) are needed to talk to the headset.", Warn); getAdb.Visible = true; });
                     return;
                 }
-                var devices = Adb.Devices();
+                var devices = Adb.Headsets();
                 string ready = null, state = null;
                 foreach (var d in devices) { state = d.Value; if (d.Value == "device") { ready = d.Key; break; } }
                 if (ready == null)
@@ -144,7 +144,7 @@ namespace VrFsimQuestSetup
                     serial = null; versionChecked = false;
                     string text = state == "unauthorized"
                         ? "Put the headset on and press Allow on \"Allow USB debugging\" (tick Always allow)."
-                        : devices.Count > 0 ? "The headset is connecting..." : "No headset found. Connect it with a USB-C cable and turn on developer mode.";
+                        : devices.Count > 0 ? "The headset is connecting..." : "No Quest found. Connect it with a USB-C cable and turn on developer mode.";
                     notReady = text;
                     Ui(delegate { Set(headsetStatus, text, Warn); getAdb.Visible = false; Set(gameStatus, "", Color.Black); });
                     return;
